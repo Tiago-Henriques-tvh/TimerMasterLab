@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Timer Master Lab</string>
+    <string name="my_home">Home</string>
+    <string name="time_trial">Time Trial</string>
+    <string name="group_race">Group Race</string>
+    <string name="settings">Settings</string>
+
+    <string name="back_button">back_buttom</string>
+    <string name="kotlin_playground_graph">kotlin_playground_graph</string>
+    <string name="statistics">Statistics</string>
+    <string name="time_trial_graph">time_trial_graph</string>
+    <string name="empty" />
+    <string name="start_list">Start List</string>
+    <string name="session_results">Session Results</string>
+    <string name="begin_time_trial">Begin Time Trial</string>
+    <string name="open_label">Open</string>
+</resources>

@@ -1,0 +1,31 @@
+build:
+    maxIssues: 0
+    weights:
+        complexity: 2
+        LongParameterList: 1
+        style: 1
+        comments: 1
+
+style:
+    MagicNumber:
+        active: false
+        ignoreNumbers: ["0", "1"]
+        ignoreHashCodeFunction: true
+    MaxLineLength:
+        active: true
+        maxLineLength: 120
+
+complexity:
+    LongMethod:
+        active: true
+        threshold: 60
+
+comments:
+    UndocumentedPublicClass:
+        active: false
+    UndocumentedPublicFunction:
+        active: false
+
+naming:
+    FunctionNaming:
+        active: false

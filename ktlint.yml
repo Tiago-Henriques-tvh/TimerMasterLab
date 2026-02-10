@@ -1,0 +1,10 @@
+rules:
+    function-naming:
+        active: true
+        functionPattern: '^[a-z@].*|^My[A-Z].*'
+    no-multi-spaces:
+        active: true
+    blank-line-before-declaration:
+        active: true
+    spacing-between-declarations-with-annotations:
+        active: true
