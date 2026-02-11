@@ -78,10 +78,10 @@ fun TimeTrial(navController: NavHostController) {
     ) {
         HeaderCard(
             title = "Time Trial",
-            description = "Individual timed runs to track performance.\nCreate the start list and start athletes one by one, times are recorded as they finish.",
+            description = "- Individual timed runs.\n- Create the start list and start athletes one by one, times are recorded as they finish.\n- You can export the start list and the results with filter if you want.",
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.25f)
+                .weight(0.30f)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -89,7 +89,7 @@ fun TimeTrial(navController: NavHostController) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.75f),
+                .weight(0.70f),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {

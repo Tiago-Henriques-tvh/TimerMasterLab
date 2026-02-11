@@ -4,18 +4,18 @@ import android.content.Context
 import com.tiagohenriques.project.timermasterlab.data.database.AppDatabase
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.OfflineAthletesRepository
+import com.tiagohenriques.project.timermasterlab.data.repositories.OfflineSessionRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.OfflineSessionResultRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.OfflineStartListEntryRepository
-import com.tiagohenriques.project.timermasterlab.data.repositories.OfflineTrialSessionRepository
+import com.tiagohenriques.project.timermasterlab.data.repositories.SessionRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.SessionResultRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.StartListEntryRepository
-import com.tiagohenriques.project.timermasterlab.data.repositories.TrialSessionRepository
 
 interface AppContainer {
     val athletesRepository: AthletesRepository
     val sessionResultRepository: SessionResultRepository
     val startListEntryRepository: StartListEntryRepository
-    val trialSessionRepository: TrialSessionRepository
+    val sessionRepository: SessionRepository
 }
 
 class AppDataContainer(
@@ -31,8 +31,8 @@ class AppDataContainer(
         OfflineSessionResultRepository(db.sessionResultDao())
     }
 
-    override val trialSessionRepository: TrialSessionRepository by lazy {
-        OfflineTrialSessionRepository(
+    override val sessionRepository: SessionRepository by lazy {
+        OfflineSessionRepository(
             db.trialSessionDao(),
             sessionResultDao = db.sessionResultDao(),
             startListEntryDao = db.startListEntryDao()

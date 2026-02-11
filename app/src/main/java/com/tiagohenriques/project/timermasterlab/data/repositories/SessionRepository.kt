@@ -1,55 +1,55 @@
 package com.tiagohenriques.project.timermasterlab.data.repositories
 
 import androidx.room.Transaction
+import com.tiagohenriques.project.timermasterlab.data.dao.SessionDao
 import com.tiagohenriques.project.timermasterlab.data.dao.SessionResultDao
 import com.tiagohenriques.project.timermasterlab.data.dao.StartListEntryDao
-import com.tiagohenriques.project.timermasterlab.data.dao.TrialSessionDao
+import com.tiagohenriques.project.timermasterlab.data.models.Session
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
-import com.tiagohenriques.project.timermasterlab.data.models.TrialSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
-interface TrialSessionRepository {
-    suspend fun insert(trialSession: TrialSession): Long
-    suspend fun update(trialSession: TrialSession)
-    suspend fun delete(trialSession: TrialSession)
-    fun getTrialSessionById(sessionId: Long): Flow<TrialSession>
-    fun getAllTrialSessions(): Flow<List<TrialSession>>
+interface SessionRepository {
+    suspend fun insert(session: Session): Long
+    suspend fun update(session: Session)
+    suspend fun delete(session: Session)
+    fun getTrialSessionById(sessionId: Long): Flow<Session>
+    fun getAllTrialSessions(): Flow<List<Session>>
     suspend fun startSession(): Long
 }
 
-class OfflineTrialSessionRepository(
-    private val trialSessionDao: TrialSessionDao,
+class OfflineSessionRepository(
+    private val sessionDao: SessionDao,
     private val sessionResultDao: SessionResultDao,
     private val startListEntryDao: StartListEntryDao,
-) : TrialSessionRepository {
-    override suspend fun insert(trialSession: TrialSession): Long =
+) : SessionRepository {
+    override suspend fun insert(session: Session): Long =
         withContext(Dispatchers.IO) {
-            trialSessionDao.insertTrialSession(trialSession)
+            sessionDao.insertTrialSession(session)
         }
 
-    override suspend fun update(trialSession: TrialSession) =
+    override suspend fun update(session: Session) =
         withContext(Dispatchers.IO) {
-            trialSessionDao.updateTrialSession(trialSession)
+            sessionDao.updateTrialSession(session)
         }
 
-    override suspend fun delete(trialSession: TrialSession) =
+    override suspend fun delete(session: Session) =
         withContext(Dispatchers.IO) {
-            trialSessionDao.deleteTrialSession(trialSession)
+            sessionDao.deleteTrialSession(session)
         }
 
-    override fun getTrialSessionById(sessionId: Long): Flow<TrialSession> =
-        trialSessionDao.getTrialSessionById(sessionId)
+    override fun getTrialSessionById(sessionId: Long): Flow<Session> =
+        sessionDao.getTrialSessionById(sessionId)
 
-    override fun getAllTrialSessions(): Flow<List<TrialSession>> =
-        trialSessionDao.getAllTrialSessions()
+    override fun getAllTrialSessions(): Flow<List<Session>> =
+        sessionDao.getAllTrialSessions()
 
     @Transaction
     override suspend fun startSession(): Long {
         val startList = startListEntryDao.getStartListOnce()
-        val sessionId = trialSessionDao.insertTrialSession(
-            TrialSession(date = System.currentTimeMillis().toString()),
+        val sessionId = sessionDao.insertTrialSession(
+            Session(date = System.currentTimeMillis().toString()),
         )
 
         startList.forEach { entry ->

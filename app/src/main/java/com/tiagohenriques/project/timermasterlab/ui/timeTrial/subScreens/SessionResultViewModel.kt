@@ -9,7 +9,7 @@ import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.SessionResultRepository
-import com.tiagohenriques.project.timermasterlab.data.repositories.TrialSessionRepository
+import com.tiagohenriques.project.timermasterlab.data.repositories.SessionRepository
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils
 import java.io.File
 import java.io.FileOutputStream
@@ -17,12 +17,12 @@ import java.io.IOException
 
 class SessionResultViewModel(
     private val sessionResultRepository: SessionResultRepository,
-    private val trialSessionRepository: TrialSessionRepository,
+    private val sessionRepository: SessionRepository,
     private val athletesRepository: AthletesRepository,
 ) : ViewModel() {
     fun getSessionResultsBySessionId(sessionId: Long) = sessionResultRepository.getSessionResultsBySessionId(sessionId)
 
-    fun getAllTrialSessions() = trialSessionRepository.getAllTrialSessions()
+    fun getAllTrialSessions() = sessionRepository.getAllTrialSessions()
 
     fun getAthleteById(id: Long) = athletesRepository.getAthleteById(id)
 

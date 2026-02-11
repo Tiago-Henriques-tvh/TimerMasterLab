@@ -23,7 +23,7 @@ object AppViewModelProvider {
             initializer {
                 SessionResultViewModel(
                     timerMasterLabApplication().container.sessionResultRepository,
-                    timerMasterLabApplication().container.trialSessionRepository,
+                    timerMasterLabApplication().container.sessionRepository,
                     timerMasterLabApplication().container.athletesRepository,
                 )
             }
@@ -31,7 +31,7 @@ object AppViewModelProvider {
             initializer {
                 BeginTimeTrialViewModel(
                     timerMasterLabApplication().container.sessionResultRepository,
-                    timerMasterLabApplication().container.trialSessionRepository,
+                    timerMasterLabApplication().container.sessionRepository,
                     timerMasterLabApplication().container.athletesRepository,
                     timerMasterLabApplication().container.startListEntryRepository,
                 )

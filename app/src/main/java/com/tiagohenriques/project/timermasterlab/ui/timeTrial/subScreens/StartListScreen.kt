@@ -1,5 +1,6 @@
 package com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -52,6 +51,7 @@ import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
+import com.tiagohenriques.project.timermasterlab.ui.components.ReorderableLazyColumn
 
 @Composable
 fun StartListScreen(navController: NavHostController) {
@@ -90,7 +90,8 @@ fun StartListScreen(navController: NavHostController) {
             onExport = {
                 viewModel.exportStartListToPDF(context)
             },
-            save = { viewModel.commitStartList() }
+            save = { viewModel.commitStartList() },
+            onMove = viewModel::moveDraftItem
         )
     }
 }
@@ -103,7 +104,8 @@ private fun StartListContent(
     onAdd: (DraftStartListItem) -> Unit,
     onEdit: (DraftStartListItem) -> Unit,
     onExport: () -> Unit,
-    save: () -> Unit
+    save: () -> Unit,
+    onMove: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> }
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var itemToEdit by remember { mutableStateOf<DraftStartListItem?>(null) }
@@ -137,20 +139,22 @@ private fun StartListContent(
             }
         }
 
-        LazyColumn(
-            contentPadding = PaddingValues(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(
-                items = uiState.draft,
-                key = { it.athlete.id }
-            ) { item ->
-                AthleteCard(
-                    item = item,
-                    onEdit = { itemToEdit = item },
-                    onRemove = { onRemove(item.athlete.id) }
-                )
-            }
+        ReorderableLazyColumn(
+            items = uiState.draft,
+            modifier = Modifier.padding(PaddingValues(12.dp)),
+            onMove = { from, to ->
+                Log.d("StartList", "onMove called: from=$from to=$to")
+                onMove(from, to)
+            },
+            key = { it.athlete.id }
+        ) { item, isDragging, dragModifier ->
+            AthleteCard(
+                item = item,
+                isDragging = isDragging,
+                dragModifier = dragModifier,
+                onEdit = { itemToEdit = item  },
+                onRemove = { onRemove(item.athlete.id) }
+            )
         }
     }
 
@@ -183,11 +187,14 @@ private fun StartListContent(
 private fun AthleteCard(
     item: DraftStartListItem,
     onEdit: () -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    isDragging: Boolean = false,
+    dragModifier: Modifier = Modifier
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        modifier = dragModifier
     ) {
         Row(
             modifier = Modifier

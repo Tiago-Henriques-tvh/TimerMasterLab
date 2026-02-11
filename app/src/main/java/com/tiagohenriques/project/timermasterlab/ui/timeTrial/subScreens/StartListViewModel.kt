@@ -151,6 +151,19 @@ class StartListViewModel(
         _uiState.update { it.copy(hasUnsavedChanges = false) }
     }
 
+    fun moveDraftItem(fromIndex: Int, toIndex: Int) {
+        val oldDraft = uiState.value.draft
+        val size = oldDraft.size
+        if (fromIndex !in 0 until size || toIndex !in 0..size || fromIndex == toIndex) return
+
+        val newDraft = oldDraft.toMutableList().apply {
+            val item = removeAt(fromIndex)
+            add(toIndex, item)
+        }.mapIndexed { index, draftItem -> draftItem.copy(startOrder = index + 1) }
+
+        _uiState.update { it.copy(draft = newDraft, hasUnsavedChanges = true) }
+    }
+
     fun exportStartListToPDF(context: Context) = viewModelScope.launch {
         val draft = uiState.value.draft
         if (draft.isEmpty()) {

@@ -128,7 +128,7 @@ private fun HomeNavigationButton(
             val circleGradient = Brush.verticalGradient(listOf(startColor, endColor))
             Box(
                 modifier = Modifier
-                    .size(60.dp)
+                    .size(65.dp)
                     .clip(CircleShape)
                     .background(brush = circleGradient),
                 contentAlignment = Alignment.Center

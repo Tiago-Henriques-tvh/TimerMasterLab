@@ -9,7 +9,7 @@ import androidx.room.Index
     primaryKeys = ["sessionId", "athleteId"],
     foreignKeys = [
         ForeignKey(
-            entity = TrialSession::class,
+            entity = Session::class,
             parentColumns = ["sessionId"],
             childColumns = ["sessionId"],
             onDelete = ForeignKey.CASCADE,

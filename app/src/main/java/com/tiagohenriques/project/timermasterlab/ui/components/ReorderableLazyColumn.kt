@@ -3,6 +3,7 @@ package com.tiagohenriques.project.timermasterlab.ui.components
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
@@ -19,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 
 @Composable
@@ -27,33 +30,16 @@ fun <T> ReorderableLazyColumn(
     modifier: Modifier = Modifier,
     onMove: (fromIndex: Int, toIndex: Int) -> Unit,
     key: ((item: T) -> Any)? = null,
-    itemContent: @Composable (item: T, isDragging: Boolean) -> Unit
+    state: LazyListState = rememberLazyListState(),
+    itemContent: @Composable (item: T, isDragging: Boolean, dragModifier: Modifier) -> Unit
 ) {
-    val lazyListState = rememberLazyListState()
-    val dragDropState = rememberDragDropListState(lazyListState, onMove)
+    val lazyListState = state
+    val dragDropState = rememberDragDropListState(lazyListState)
     val scope = rememberCoroutineScope()
 
     LazyColumn(
         state = lazyListState,
-        modifier = modifier.pointerInput(Unit) {
-            detectDragGesturesAfterLongPress(
-                onDragStart = { dragDropState.onDragStart(it) },
-                onDragCancel = { dragDropState.onDragInterrupted() },
-                onDragEnd = { dragDropState.onDragInterrupted() },
-                onDrag = { change, offset ->
-                    change.consume()
-                    dragDropState.onDrag(offset)
-
-                    dragDropState.checkOverscroll()
-                        .takeIf { it != 0f }
-                        ?.let { scroll ->
-                            scope.launch {
-                                lazyListState.scrollBy(scroll)
-                            }
-                        }
-                }
-            )
-        }
+        modifier = modifier
     ) {
         itemsIndexed(
             items = items,
@@ -65,14 +51,55 @@ fun <T> ReorderableLazyColumn(
                     index == dragDropState.currentIndexOfDraggedItem
                 }
 
+            val dragModifier = Modifier.pointerInput(index) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset ->
+                        val itemInfo = lazyListState.layoutInfo.visibleItemsInfo
+                            .firstOrNull { it.index == index }
+
+                        val absolute = if (itemInfo != null) {
+                            Offset(offset.x, itemInfo.offset + offset.y)
+                        } else {
+                            offset
+                        }
+
+                        dragDropState.onDragStart(absolute)
+                    },
+                    onDragCancel = { dragDropState.onDragInterrupted() },
+                    onDragEnd = {
+                        val from = dragDropState.currentIndexOfDraggedItem
+                        val target = dragDropState.computeDropTarget()
+                        if (from != null && target != null && from != target) {
+                            onMove(from, target)
+                        }
+
+                        dragDropState.onDragInterrupted()
+                    },
+                    onDrag = { change, offset ->
+                        change.consume()
+                        dragDropState.onDrag(offset)
+
+                        dragDropState.checkOverscroll()
+                            .takeIf { it != 0f }
+                            ?.let { scroll ->
+                                scope.launch {
+                                    lazyListState.scrollBy(scroll)
+                                }
+                            }
+                    }
+                )
+            }
+
             Box(
-                modifier = Modifier.graphicsLayer {
-                    (displacement ?: 0f).also { translationY = it }
-                }
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .zIndex(if (index == dragDropState.currentIndexOfDraggedItem) 1f else 0f)
+                    .graphicsLayer { (displacement ?: 0f).also { translationY = it } }
             ) {
                 itemContent(
                     item,
-                    index == dragDropState.currentIndexOfDraggedItem
+                    index == dragDropState.currentIndexOfDraggedItem,
+                    dragModifier
                 )
             }
         }
@@ -82,14 +109,12 @@ fun <T> ReorderableLazyColumn(
 @Composable
 fun rememberDragDropListState(
     lazyListState: LazyListState,
-    onMove: (Int, Int) -> Unit
 ): DragDropListState {
-    return remember { DragDropListState(lazyListState, onMove) }
+    return remember { DragDropListState(lazyListState) }
 }
 
 class DragDropListState(
     val lazyListState: LazyListState,
-    private val onMove: (Int, Int) -> Unit
 ) {
     var draggingDistance by mutableFloatStateOf(0f)
         private set
@@ -122,27 +147,6 @@ class DragDropListState(
 
     fun onDrag(offset: Offset) {
         draggingDistance += offset.y
-
-        val draggedItem = currentIndexOfDraggedItem ?: return
-        val draggedInfo = lazyListState.layoutInfo.visibleItemsInfo
-            .firstOrNull { it.index == draggedItem } ?: return
-
-        val start = draggedInfo.offset + draggingDistance
-        val end = start + draggedInfo.size
-
-        lazyListState.layoutInfo.visibleItemsInfo
-            .filterNot { it.index == draggedItem }
-            .firstOrNull { item ->
-                if (draggingDistance > 0) {
-                    end > item.offset + item.size / 2
-                } else {
-                    start < item.offset + item.size / 2
-                }
-            }
-            ?.let { target ->
-                onMove(draggedItem, target.index)
-                currentIndexOfDraggedItem = target.index
-            }
     }
 
     fun onDragInterrupted() {
@@ -165,30 +169,26 @@ class DragDropListState(
             else -> 0f
         }
     }
-}
 
-/*
-val items = remember {
-    mutableStateListOf("One", "Two", "Three", "Four", "Five")
-}
+    fun computeDropTarget(): Int? {
+        val dragged = currentIndexOfDraggedItem ?: return null
+        val baselineInfo = lazyListState.layoutInfo.visibleItemsInfo
+            .firstOrNull { it.index == dragged }
+            ?: initiallyDraggedElement
+            ?: return null
 
-ReorderableLazyColumn(
-    items = items,
-    onMove = { from, to ->
-        items.add(to, items.removeAt(from))
-    },
-    key = { it }
-) { item, isDragging ->
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = if (isDragging) 8.dp else 2.dp
-    ) {
-        Text(
-            text = item,
-            modifier = Modifier.padding(16.dp)
-        )
+        val draggedCenter = baselineInfo.offset + baselineInfo.size / 2f + draggingDistance
+
+        val others = lazyListState.layoutInfo.visibleItemsInfo
+            .filterNot { it.index == dragged }
+
+        if (others.isEmpty()) return dragged
+
+        val target = others.firstOrNull { other ->
+            val otherCenter = other.offset + other.size / 2f
+            draggedCenter < otherCenter
+        } ?: others.last()
+
+        return target.index
     }
 }
-*/

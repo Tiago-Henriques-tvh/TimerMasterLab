@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
+import com.tiagohenriques.project.timermasterlab.data.repositories.SessionRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.SessionResultRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.StartListEntryRepository
-import com.tiagohenriques.project.timermasterlab.data.repositories.TrialSessionRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +33,7 @@ data class DraftTimeTrialItem(
 
 class BeginTimeTrialViewModel(
     private val sessionResultRepo: SessionResultRepository,
-    private val trialSessionRepo: TrialSessionRepository,
+    private val trialSessionRepo: SessionRepository,
     private val athletesRepo: AthletesRepository,
     private val startListRepo: StartListEntryRepository,
 ) : ViewModel() {
@@ -156,7 +156,7 @@ class BeginTimeTrialViewModel(
         }
     }
 
-    private suspend fun enforceMaxSessions(maxSessions: Int = 7) {
+    private suspend fun enforceMaxSessions(maxSessions: Int = 20) {
         fun parseDateToEpoch(dateStr: String): Long {
             if (dateStr.isBlank()) return 0L
             return try {

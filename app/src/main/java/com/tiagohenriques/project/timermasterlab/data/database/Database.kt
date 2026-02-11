@@ -7,14 +7,14 @@ import androidx.room.RoomDatabase
 import com.tiagohenriques.project.timermasterlab.data.dao.AthletesDao
 import com.tiagohenriques.project.timermasterlab.data.dao.SessionResultDao
 import com.tiagohenriques.project.timermasterlab.data.dao.StartListEntryDao
-import com.tiagohenriques.project.timermasterlab.data.dao.TrialSessionDao
+import com.tiagohenriques.project.timermasterlab.data.dao.SessionDao
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.models.StartListEntry
-import com.tiagohenriques.project.timermasterlab.data.models.TrialSession
+import com.tiagohenriques.project.timermasterlab.data.models.Session
 
 @Database(
-    entities = [Athlete::class, SessionResult::class, StartListEntry::class, TrialSession::class],
+    entities = [Athlete::class, SessionResult::class, StartListEntry::class, Session::class],
     version = 1,
     exportSchema = false,
 )
@@ -22,7 +22,7 @@ internal abstract class AppDatabase : RoomDatabase() {
     abstract fun athletesDao(): AthletesDao
     abstract fun sessionResultDao(): SessionResultDao
     abstract fun startListEntryDao(): StartListEntryDao
-    abstract fun trialSessionDao(): TrialSessionDao
+    abstract fun trialSessionDao(): SessionDao
 
     companion object {
         @Volatile

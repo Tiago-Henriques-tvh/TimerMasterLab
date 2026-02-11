@@ -162,7 +162,6 @@ private fun BeginTimeTrialContent(
             .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-
         if (toStart.isNotEmpty()) {
             SectionHeader(title = "To start", count = toStart.size)
 
@@ -171,10 +170,13 @@ private fun BeginTimeTrialContent(
                     .fillMaxWidth()
                     .height(260.dp),
                 shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(toStart, key = { it.athlete.id }) { item ->
@@ -183,16 +185,16 @@ private fun BeginTimeTrialContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             SectionHeader(title = "Running / Finished", count = running.size + finished.size)
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(4.dp)
                     .weight(1f),
                 shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -212,9 +214,11 @@ private fun BeginTimeTrialContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(4.dp)
                     .weight(1f),
                 shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -236,8 +240,7 @@ fun SectionHeader(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -275,8 +278,8 @@ fun AthleteRow(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(92.dp),
-        shape = RoundedCornerShape(16.dp),
+            .height(65.dp),
+        shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -285,7 +288,6 @@ fun AthleteRow(
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Box(
                 modifier = Modifier
                     .size(36.dp)
