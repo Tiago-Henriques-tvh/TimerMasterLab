@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
-import com.tiagohenriques.project.timermasterlab.data.models.Level
+import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.StartListEntry
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.StartListEntryRepository
@@ -198,14 +198,14 @@ class StartListViewModel(
                 val colDistance = 280f
                 val colAge = 360f
                 val colGender = 420f
-                val colLevel = 480f
+                val colCategory = 480f
 
                 canvas.drawText("No", colOrder, yPos.toFloat(), paint)
                 canvas.drawText("Name", colName, yPos.toFloat(), paint)
                 canvas.drawText("Distance", colDistance, yPos.toFloat(), paint)
                 canvas.drawText("Age", colAge, yPos.toFloat(), paint)
                 canvas.drawText("Gender", colGender, yPos.toFloat(), paint)
-                canvas.drawText("Level", colLevel, yPos.toFloat(), paint)
+                canvas.drawText("Category", colCategory, yPos.toFloat(), paint)
                 yPos += lineHeight
 
                 paint.textSize = 12f
@@ -222,14 +222,14 @@ class StartListViewModel(
                     }
 
                     val athlete = item.athlete
-                    val levelName = runCatching { Level.fromCode(athlete.level) }.getOrNull() ?: ""
+                    val categoryName = runCatching { Category.fromCode(athlete.category) }.getOrNull() ?: ""
 
                     canvas.drawText(item.startOrder.toString(), colOrder, yPos.toFloat(), paint)
                     canvas.drawText(athlete.name, colName, yPos.toFloat(), paint)
                     canvas.drawText("${item.distanceMeters.toInt()}m", colDistance, yPos.toFloat(), paint)
                     canvas.drawText("${athlete.age}", colAge, yPos.toFloat(), paint)
                     canvas.drawText(athlete.gender, colGender, yPos.toFloat(), paint)
-                    canvas.drawText(levelName, colLevel, yPos.toFloat(), paint)
+                    canvas.drawText(categoryName, colCategory, yPos.toFloat(), paint)
 
                     yPos += lineHeight
                     lineCount++

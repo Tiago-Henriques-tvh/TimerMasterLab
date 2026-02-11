@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
-import com.tiagohenriques.project.timermasterlab.data.models.Level
+import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 
 @Composable
@@ -205,7 +205,7 @@ private fun AthleteCard(
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = "${item.distanceMeters}m • ${Level.fromCode(item.athlete.level)}",
+                    text = "${item.distanceMeters}m • ${Category.fromCode(item.athlete.category)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )
@@ -246,8 +246,8 @@ fun AddAthleteDialog(
     var age by remember { mutableStateOf(athlete?.age?.toString() ?: "") }
     var gender by remember { mutableStateOf(athlete?.gender ?: "-") }
     var genderExpanded by remember { mutableStateOf(false) }
-    var level by remember { mutableStateOf(athlete?.level ?: 0) }
-    var levelExpanded by remember { mutableStateOf(false) }
+    var category by remember { mutableStateOf(athlete?.category ?: 0) }
+    var categoryExpanded by remember { mutableStateOf(false) }
     val genderOptions = listOf("-", "M", "F")
     var distance by remember {
         mutableStateOf(
@@ -320,28 +320,28 @@ fun AddAthleteDialog(
                 )
 
                 ExposedDropdownMenuBox(
-                    expanded = levelExpanded,
-                    onExpandedChange = { levelExpanded = !levelExpanded }
+                    expanded = categoryExpanded,
+                    onExpandedChange = { categoryExpanded = !categoryExpanded }
                 ) {
                     OutlinedTextField(
-                        value = Level.entries[level].displayName,
+                        value = Category.entries[category].displayName,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Level") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(levelExpanded) },
+                        label = { Text("Category") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(categoryExpanded) },
                         modifier = Modifier.menuAnchor()
                     )
 
                     ExposedDropdownMenu(
-                        expanded = levelExpanded,
-                        onDismissRequest = { levelExpanded = false }
+                        expanded = categoryExpanded,
+                        onDismissRequest = { categoryExpanded = false }
                     ) {
-                        Level.entries.forEach { option ->
+                        Category.entries.forEach { option ->
                             DropdownMenuItem(
                                 text = { Text(option.displayName) },
                                 onClick = {
-                                    level = option.code
-                                    levelExpanded = false
+                                    category = option.code
+                                    categoryExpanded = false
                                 }
                             )
                         }
@@ -366,12 +366,12 @@ fun AddAthleteDialog(
                         name = name,
                         age = age.toIntOrNull() ?: 0,
                         gender = gender,
-                        level = level
+                        category = category
                     ) ?: Athlete(
                         name = name,
                         age = age.toIntOrNull() ?: 0,
                         gender = gender,
-                        level = level
+                        category = category
                     )
 
                     onConfirm(

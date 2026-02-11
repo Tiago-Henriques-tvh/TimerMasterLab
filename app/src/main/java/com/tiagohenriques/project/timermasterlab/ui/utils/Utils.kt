@@ -5,7 +5,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class Utils {
-
     companion object {
         fun formatDuration(millis: Long?): String {
             if (millis == null || millis <= 0L) return "--:--:--"
@@ -31,6 +30,7 @@ class Utils {
                 val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
                 return fmt.format(instant)
             } catch (_: Throwable) {
+
             }
 
             return dateStr

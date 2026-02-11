@@ -5,7 +5,7 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
-import com.tiagohenriques.project.timermasterlab.data.models.Level
+import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.SessionResultRepository
@@ -105,7 +105,7 @@ class SessionResultViewModel(
             val grouped = when (effectiveGroup) {
                 "Age" -> results.groupBy { (_, athlete) -> athlete?.age?.toString() ?: "Unknown" }
                 "Gender" -> results.groupBy { (_, athlete) -> athlete?.gender ?: "Unknown" }
-                "Level" -> results.groupBy { (_, athlete) -> athlete?.let { Level.fromCode(it.level) } ?: "Unknown" }
+                "Category" -> results.groupBy { (_, athlete) -> athlete?.let { Category.fromCode(it.category) } ?: "Unknown" }
                 "Distance" -> results.groupBy { (result, _) -> result.distance.toString() }
                 else -> results.groupBy { "Unknown" }
             }

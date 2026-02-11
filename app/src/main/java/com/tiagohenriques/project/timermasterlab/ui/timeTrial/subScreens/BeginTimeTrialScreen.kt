@@ -413,7 +413,7 @@ fun AthleteRowPreview() {
                 name = "John Doe",
                 age = 20,
                 gender = "M",
-                level = 1,
+                category = 1,
             ),
             result = null,
             startOrder = 1,

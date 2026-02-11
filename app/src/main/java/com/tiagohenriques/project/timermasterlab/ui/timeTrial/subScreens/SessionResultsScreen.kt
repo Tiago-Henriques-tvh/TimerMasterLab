@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
-import com.tiagohenriques.project.timermasterlab.data.models.Level
+import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.models.TrialSession
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
@@ -60,7 +60,7 @@ fun SessionResultsScreen(navController: NavHostController) {
             .collectAsState(initial = emptyList())
     }?.value ?: emptyList()
 
-    val groupOptions = listOf("None", "Age", "Gender", "Level", "Distance")
+    val groupOptions = listOf("None", "Age", "Gender", "Category", "Distance")
     var selectedGroup by remember { mutableStateOf("None") }
     var groupExpanded by remember { mutableStateOf(false) }
 
@@ -86,7 +86,7 @@ fun SessionResultsScreen(navController: NavHostController) {
             when (selectedGroup) {
                 "Age" -> athlete?.age?.toString() ?: "Unknown"
                 "Gender" -> athlete?.gender ?: "Unknown"
-                "Level" -> athlete?.let { Level.fromCode(it.level) } ?: "Unknown"
+                "Category" -> athlete?.let { Category.fromCode(it.category) } ?: "Unknown"
                 "Distance" -> result.distance.toString()
                 else -> "Unknown"
             }
@@ -246,7 +246,7 @@ fun SessionResultsScreen(navController: NavHostController) {
                         when (selectedGroup) {
                             "Age" -> athlete?.age?.toString() ?: "Unknown"
                             "Gender" -> athlete?.gender ?: "Unknown"
-                            "Level" -> athlete?.let { Level.fromCode(it.level) } ?: "Unknown"
+                            "Category" -> athlete?.let { Category.fromCode(it.category) } ?: "Unknown"
                             "Distance" -> result.distance.toString()
                             else -> "Unknown"
                         }

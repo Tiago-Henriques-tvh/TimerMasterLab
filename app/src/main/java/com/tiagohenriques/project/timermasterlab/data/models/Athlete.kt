@@ -10,10 +10,10 @@ data class Athlete(
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "age") val age: Int,
     @ColumnInfo(name = "gender") val gender: String,
-    @ColumnInfo(name = "level") val level: Int,
+    @ColumnInfo(name = "category") val category: Int,
 )
 
-enum class Level(val code: Int, val displayName: String) {
+enum class Category(val code: Int, val displayName: String) {
     Minor(0, "Minor"),
     Iniciado(1, "Iniciado"),
     Infantil(2, "Infantil"),
