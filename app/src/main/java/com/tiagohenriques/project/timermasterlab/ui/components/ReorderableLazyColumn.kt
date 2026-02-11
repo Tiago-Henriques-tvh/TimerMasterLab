@@ -30,10 +30,9 @@ fun <T> ReorderableLazyColumn(
     modifier: Modifier = Modifier,
     onMove: (fromIndex: Int, toIndex: Int) -> Unit,
     key: ((item: T) -> Any)? = null,
-    state: LazyListState = rememberLazyListState(),
     itemContent: @Composable (item: T, isDragging: Boolean, dragModifier: Modifier) -> Unit
 ) {
-    val lazyListState = state
+    val lazyListState = rememberLazyListState()
     val dragDropState = rememberDragDropListState(lazyListState)
     val scope = rememberCoroutineScope()
 

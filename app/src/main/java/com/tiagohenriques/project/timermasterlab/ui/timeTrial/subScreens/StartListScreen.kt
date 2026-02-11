@@ -139,6 +139,13 @@ private fun StartListContent(
             }
         }
 
+        Text(
+            text = "Hold to drag and readjust athletes.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            modifier = Modifier.padding(start = 12.dp)
+        )
+
         ReorderableLazyColumn(
             items = uiState.draft,
             modifier = Modifier.padding(PaddingValues(12.dp)),
@@ -152,7 +159,7 @@ private fun StartListContent(
                 item = item,
                 isDragging = isDragging,
                 dragModifier = dragModifier,
-                onEdit = { itemToEdit = item  },
+                onEdit = { itemToEdit = item },
                 onRemove = { onRemove(item.athlete.id) }
             )
         }
