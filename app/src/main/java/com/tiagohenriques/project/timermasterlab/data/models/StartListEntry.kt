@@ -25,4 +25,16 @@ data class StartListEntry(
     @PrimaryKey @ColumnInfo(name = "athlete_id") val athleteId: Long,
     @ColumnInfo(name = "start_order") val startOrder: Int,
     @ColumnInfo(name = "distance_meters") val distanceMeters: Float,
+    @ColumnInfo(name = "type") val type: String,
 )
+
+enum class Type(val displayName: String) {
+    TIME_TRIAL("Time Trial"),
+    GROUP_RACE("Group Race");
+
+    companion object {
+        fun fromType(type: Type): Type? {
+            return entries.find { it.displayName == type.displayName }
+        }
+    }
+}

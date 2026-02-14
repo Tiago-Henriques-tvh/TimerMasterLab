@@ -51,6 +51,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
+import com.tiagohenriques.project.timermasterlab.ui.components.SectionHeader
+import com.tiagohenriques.project.timermasterlab.ui.utils.Utils.Companion.formatDuration
 
 @Composable
 fun BeginTimeTrialScreen(navController: NavHostController) {
@@ -78,7 +80,7 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = formatMillis(sessionTime),
+                        text = formatDuration(sessionTime),
                         style = MaterialTheme.typography.displaySmall,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
@@ -234,39 +236,6 @@ private fun BeginTimeTrialContent(
 }
 
 @Composable
-fun SectionHeader(
-    title: String,
-    count: Int
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        Spacer(Modifier.width(8.dp))
-
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
 fun AthleteRow(
     item: DraftTimeTrialItem,
     onStart: () -> Unit,
@@ -318,7 +287,7 @@ fun AthleteRow(
             Spacer(Modifier.width(12.dp))
 
             Text(
-                text = formatMillis(item.result?.duration ?: 0L),
+                text = formatDuration(item.result?.duration ?: 0L),
                 modifier = Modifier.width(88.dp),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.End
@@ -374,34 +343,6 @@ fun AthleteRow(
             }
         }
     }
-}
-
-@Composable
-fun SessionTimer(sessionTime: Long, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(vertical = 12.dp, horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = formatMillis(sessionTime),
-            style = MaterialTheme.typography.displaySmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
-}
-
-fun formatMillis(millis: Long): String {
-    val totalSeconds = millis / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    val centis = (millis % 1000) / 10
-
-    return "%02d:%02d.%02d".format(minutes, seconds, centis)
 }
 
 @Preview(showBackground = true)

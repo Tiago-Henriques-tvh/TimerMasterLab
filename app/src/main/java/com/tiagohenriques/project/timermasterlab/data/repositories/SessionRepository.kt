@@ -16,7 +16,8 @@ interface SessionRepository {
     suspend fun delete(session: Session)
     fun getTrialSessionById(sessionId: Long): Flow<Session>
     fun getAllTrialSessions(): Flow<List<Session>>
-    suspend fun startSession(): Long
+    suspend fun startTimeTrialSession(): Long
+    suspend fun startGroupRaceSession(): Long
 }
 
 class OfflineSessionRepository(
@@ -46,8 +47,30 @@ class OfflineSessionRepository(
         sessionDao.getAllTrialSessions()
 
     @Transaction
-    override suspend fun startSession(): Long {
-        val startList = startListEntryDao.getStartListOnce()
+    override suspend fun startTimeTrialSession(): Long {
+        val startList = startListEntryDao.getTimeTrialStartListOnce()
+        val sessionId = sessionDao.insertTrialSession(
+            Session(date = System.currentTimeMillis().toString()),
+        )
+
+        startList.forEach { entry ->
+            sessionResultDao.insertSession(
+                SessionResult(
+                    sessionId = sessionId,
+                    athleteId = entry.athleteId,
+                    startOrder = entry.startOrder,
+                    distance = entry.distanceMeters.toInt(),
+                    startedAt = null,
+                    duration = null,
+                ),
+            )
+        }
+        return sessionId
+    }
+
+    @Transaction
+    override suspend fun startGroupRaceSession(): Long {
+        val startList = startListEntryDao.getGroupRaceListOnce()
         val sessionId = sessionDao.insertTrialSession(
             Session(date = System.currentTimeMillis().toString()),
         )

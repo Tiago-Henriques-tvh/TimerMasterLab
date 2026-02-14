@@ -8,8 +8,8 @@ import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
-import com.tiagohenriques.project.timermasterlab.data.repositories.SessionResultRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.SessionRepository
+import com.tiagohenriques.project.timermasterlab.data.repositories.SessionResultRepository
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils
 import java.io.File
 import java.io.FileOutputStream
@@ -105,7 +105,10 @@ class SessionResultViewModel(
             val grouped = when (effectiveGroup) {
                 "Age" -> results.groupBy { (_, athlete) -> athlete?.age?.toString() ?: "Unknown" }
                 "Gender" -> results.groupBy { (_, athlete) -> athlete?.gender ?: "Unknown" }
-                "Category" -> results.groupBy { (_, athlete) -> athlete?.let { Category.fromCode(it.category) } ?: "Unknown" }
+                "Category" -> results.groupBy { (_, athlete) ->
+                    athlete?.let { Category.fromCode(it.category) } ?: "Unknown"
+                }
+
                 "Distance" -> results.groupBy { (result, _) -> result.distance.toString() }
                 else -> results.groupBy { "Unknown" }
             }

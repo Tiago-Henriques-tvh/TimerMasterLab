@@ -20,12 +20,21 @@ interface StartListEntryDao {
     @Delete
     suspend fun deleteListEntry(entry: StartListEntry)
 
-    @Query("DELETE FROM start_list_entry")
-    suspend fun clearStartList()
+    @Query("DELETE FROM start_list_entry WHERE type = 'Time Trial'")
+    suspend fun clearTimeTrialStartList()
 
-    @Query("SELECT * FROM start_list_entry ORDER BY start_order ASC")
-    fun getStartList(): Flow<List<StartListEntry>>
+    @Query("DELETE FROM start_list_entry WHERE type = 'Group Race'")
+    suspend fun clearGroupRaceStartList()
 
-    @Query("SELECT * FROM start_list_entry ORDER BY start_order ASC")
-    suspend fun getStartListOnce(): List<StartListEntry>
+    @Query("SELECT * FROM start_list_entry WHERE type = 'Time Trial' ORDER BY start_order ASC")
+    fun getTimeTrialStartList(): Flow<List<StartListEntry>>
+
+    @Query("SELECT * FROM start_list_entry WHERE type = 'Time Trial' ORDER BY start_order ASC")
+    suspend fun getTimeTrialStartListOnce(): List<StartListEntry>
+
+    @Query("SELECT * FROM start_list_entry WHERE type = 'Group Race' ORDER BY start_order ASC")
+    fun getGroupRaceStartList(): Flow<List<StartListEntry>>
+
+    @Query("SELECT * FROM start_list_entry WHERE type = 'Group Race' ORDER BY start_order ASC")
+    suspend fun getGroupRaceListOnce(): List<StartListEntry>
 }

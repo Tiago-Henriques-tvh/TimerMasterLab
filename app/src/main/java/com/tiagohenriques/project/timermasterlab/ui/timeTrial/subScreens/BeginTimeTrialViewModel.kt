@@ -48,10 +48,10 @@ class BeginTimeTrialViewModel(
 
     init {
         viewModelScope.launch {
-            val startListEntries = startListRepo.getStartList().first()
+            val startListEntries = startListRepo.getTimeTrialStartList().first()
             val allAthletes = athletesRepo.getAllAthletesOnce()
             val athletesMap = allAthletes.associateBy { it.id }
-            val sessionId = trialSessionRepo.startSession()
+            val sessionId = trialSessionRepo.startTimeTrialSession()
 
             val draftItems = startListEntries.map { entry ->
                 val athlete = athletesMap[entry.athleteId]!!

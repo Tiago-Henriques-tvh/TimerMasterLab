@@ -27,6 +27,6 @@ enum class Category(val code: Int, val displayName: String) {
     VeteranD(10, "Veteran D");
 
     companion object {
-        fun fromCode(code: Int) = entries.firstOrNull { it.code == code }?.displayName ?: ""
+        fun fromCode(code: Int): String = entries.firstOrNull { it.code == code }?.displayName ?: ""
     }
 }

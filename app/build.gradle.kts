@@ -36,7 +36,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.tiagohenriques.project.mysphere"
+        applicationId = "com.tiagohenriques.project.timermasterlab"
         minSdk = 33
         targetSdk = 36
         versionCode = 1

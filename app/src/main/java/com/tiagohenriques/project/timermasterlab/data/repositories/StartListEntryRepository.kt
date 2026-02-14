@@ -10,8 +10,10 @@ interface StartListEntryRepository {
     suspend fun insert(startList: StartListEntry): Long
     suspend fun update(startList: StartListEntry)
     suspend fun delete(startList: StartListEntry)
-    suspend fun clearStartList()
-    fun getStartList(): Flow<List<StartListEntry>>
+    suspend fun clearTimeTrialStartList()
+    suspend fun clearGroupRaceStartList()
+    fun getTimeTrialStartList(): Flow<List<StartListEntry>>
+    fun getGroupRaceStartList(): Flow<List<StartListEntry>>
 }
 
 class OfflineStartListEntryRepository(
@@ -32,11 +34,19 @@ class OfflineStartListEntryRepository(
             starListEntryDao.deleteListEntry(startList)
         }
 
-    override suspend fun clearStartList() =
+    override suspend fun clearTimeTrialStartList() =
         withContext(Dispatchers.IO) {
-            starListEntryDao.clearStartList()
+            starListEntryDao.clearTimeTrialStartList()
         }
 
-    override fun getStartList(): Flow<List<StartListEntry>> =
-        starListEntryDao.getStartList()
+    override suspend fun clearGroupRaceStartList() =
+        withContext(Dispatchers.IO) {
+            starListEntryDao.clearGroupRaceStartList()
+        }
+
+    override fun getTimeTrialStartList(): Flow<List<StartListEntry>> =
+        starListEntryDao.getTimeTrialStartList()
+
+    override fun getGroupRaceStartList(): Flow<List<StartListEntry>> =
+        starListEntryDao.getGroupRaceStartList()
 }

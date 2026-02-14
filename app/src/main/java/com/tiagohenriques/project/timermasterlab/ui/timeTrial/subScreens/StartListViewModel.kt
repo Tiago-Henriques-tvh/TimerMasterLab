@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.StartListEntry
+import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.StartListEntryRepository
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +53,7 @@ class StartListViewModel(
     init {
         viewModelScope.launch {
             startListEntryRepository
-                .getStartList()
+                .getTimeTrialStartList()
                 .take(1)
                 .collect { entries ->
                     val draftItems = coroutineScope {
@@ -136,14 +137,15 @@ class StartListViewModel(
     }
 
     fun commitStartList() = viewModelScope.launch {
-        startListEntryRepository.clearStartList()
+        startListEntryRepository.clearTimeTrialStartList()
 
         uiState.value.draft.forEach { item ->
             startListEntryRepository.insert(
                 StartListEntry(
                     athleteId = item.athlete.id,
                     startOrder = item.startOrder,
-                    distanceMeters = item.distanceMeters
+                    distanceMeters = item.distanceMeters,
+                    type = Type.TIME_TRIAL.displayName
                 )
             )
         }
