@@ -14,4 +14,5 @@
     <string name="session_results">Session Results</string>
     <string name="begin_time_trial">Begin Time Trial</string>
     <string name="open_label">Open</string>
+    <string name="begin_group_race">Begin Group Race</string>
 </resources>

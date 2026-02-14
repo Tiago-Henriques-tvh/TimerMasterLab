@@ -1,6 +1,7 @@
-package com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens
+package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
@@ -49,6 +50,8 @@ class StartListViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(StartListUiState())
     val uiState: StateFlow<StartListUiState> = _uiState.asStateFlow()
+
+    // TODO: ADAPT SOMETHING FOR ALLOWING ATHLETE TO BE ADDED WITH SAME ORDER AND FOR THE GROUP RACE
 
     init {
         viewModelScope.launch {
@@ -198,7 +201,7 @@ class StartListViewModel(
                 val canvas = currentPage.canvas
                 val paint = Paint().apply {
                     isAntiAlias = true
-                    color = android.graphics.Color.BLACK
+                    color = Color.BLACK
                     textSize = 18f
                     typeface = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
                 }

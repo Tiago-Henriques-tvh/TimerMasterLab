@@ -2,7 +2,10 @@ package com.tiagohenriques.project.timermasterlab.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,8 +24,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.Category
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.DraftStartListItem
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.StartListUiState
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.DraftStartListItem
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.StartListUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,8 +56,12 @@ fun AddAthleteDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (athlete == null) "Add Athlete" else "Edit Athlete") },
+        modifier = Modifier.imePadding(),
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },

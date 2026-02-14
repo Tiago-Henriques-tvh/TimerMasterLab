@@ -35,27 +35,26 @@ data class TimeTrialScreen(
     val icon: ImageVector,
 )
 
-val timeTrialScreensList =
-    listOf(
-        TimeTrialScreen(
-            title = "Start List",
-            description = "Add athletes to the start list",
-            icon = Icons.Default.Grading,
-            route = TimerMasterLabAppScreens.StartList.name,
-        ),
-        TimeTrialScreen(
-            title = "Begin Time Trial",
-            description = "Begin the time trial",
-            icon = Icons.Default.SkipNext,
-            route = TimerMasterLabAppScreens.BeginTimeTrial.name,
-        ),
-        TimeTrialScreen(
-            title = "Sessions Results",
-            description = "See the results of the sessions",
-            icon = Icons.Default.Analytics,
-            route = TimerMasterLabAppScreens.SessionResults.name,
-        ),
-    )
+val timeTrialScreensList = listOf(
+    TimeTrialScreen(
+        title = "Start List",
+        description = "Add athletes to the start list",
+        icon = Icons.Default.Grading,
+        route = TimerMasterLabAppScreens.StartList.name,
+    ),
+    TimeTrialScreen(
+        title = "Begin Time Trial",
+        description = "Begin the time trial",
+        icon = Icons.Default.SkipNext,
+        route = TimerMasterLabAppScreens.BeginTimeTrial.name,
+    ),
+    TimeTrialScreen(
+        title = "Sessions Results",
+        description = "See the results of the sessions",
+        icon = Icons.Default.Analytics,
+        route = TimerMasterLabAppScreens.SessionResults.name,
+    ),
+)
 
 @Composable
 fun TimeTrial(navController: NavHostController) {

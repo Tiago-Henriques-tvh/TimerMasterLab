@@ -1,4 +1,4 @@
-package com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens
+package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

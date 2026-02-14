@@ -1,4 +1,4 @@
-package com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens
+package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
@@ -38,8 +40,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.Category
-import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.models.Session
+import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils
 import kotlinx.coroutines.flow.first
@@ -98,7 +100,7 @@ fun SessionResultsScreen(navController: NavHostController) {
             .padding(16.dp)
     ) {
         Surface(
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.colorScheme.surfaceVariant,
             tonalElevation = 2.dp,
             modifier = Modifier.fillMaxWidth()
@@ -115,7 +117,7 @@ fun SessionResultsScreen(navController: NavHostController) {
                     )
 
                     Surface(
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(20.dp),
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     ) {
                         Text(
@@ -132,8 +134,8 @@ fun SessionResultsScreen(navController: NavHostController) {
                 FilledTonalButton(
                     onClick = { expanded = true },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                 ) {
                     Icon(
                         Icons.Filled.FilterList,
@@ -170,7 +172,7 @@ fun SessionResultsScreen(navController: NavHostController) {
         } else {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(10.dp),
                     color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier
                         .weight(1f)
@@ -213,8 +215,8 @@ fun SessionResultsScreen(navController: NavHostController) {
                             Toast.makeText(context, "Export failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
                         }
                     },
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(
                         Icons.Filled.FileDownload,
@@ -297,8 +299,8 @@ private fun GroupHeader(title: String, count: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        androidx.compose.material3.Surface(
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+        Surface(
+            shape = RoundedCornerShape(8.dp),
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier.padding(end = 8.dp)
         ) {
@@ -310,8 +312,8 @@ private fun GroupHeader(title: String, count: Int) {
             )
         }
 
-        androidx.compose.material3.Surface(
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+        Surface(
+            shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
         ) {
             Text(
@@ -334,7 +336,7 @@ private fun ResultTableHeader() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Pos",
+            text = "Start",
             modifier = Modifier.width(48.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -362,7 +364,7 @@ private fun ResultTableRow(result: SessionResult, athlete: Athlete?, isAlternate
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .background(
                 color = if (isAlternate) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp)
             )
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically

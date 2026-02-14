@@ -6,9 +6,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tiagohenriques.project.timermasterlab.TimerMasterLabApplication
 import com.tiagohenriques.project.timermasterlab.domain.UserPreferencesViewModel
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.BeginTimeTrialViewModel
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.SessionResultViewModel
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.StartListViewModel
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.BeginTimeTrialViewModel
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.SessionResultViewModel
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.StartListViewModel
 
 object AppViewModelProvider {
     val Factory =

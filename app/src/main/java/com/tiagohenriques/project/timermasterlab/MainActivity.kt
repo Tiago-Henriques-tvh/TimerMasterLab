@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
             TimerMasterLabTheme(
                 darkTheme = isDarkTheme,
             ) {
-                val layoutDirection = LocalLayoutDirection.current // TODO
+                val layoutDirection = LocalLayoutDirection.current // TODO: FIX THIS TO ADJUST SCREEN SIZE
                 val navController = rememberNavController()
                 val backStackEntry by navController.currentBackStackEntryAsState()
                 val currentScreenTitle =

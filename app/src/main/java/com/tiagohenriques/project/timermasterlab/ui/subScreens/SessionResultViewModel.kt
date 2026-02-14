@@ -1,6 +1,9 @@
-package com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens
+package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
 import android.os.Environment
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
@@ -37,10 +40,10 @@ class SessionResultViewModel(
             return
         }
 
-        val pdfDocument = android.graphics.pdf.PdfDocument()
+        val pdfDocument = PdfDocument()
         val pageWidth = 595
         val pageHeight = 842
-        val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+        val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
 
         val marginLeft = 40f
         val marginTop = 40f
@@ -52,9 +55,9 @@ class SessionResultViewModel(
         val nameX = marginLeft + 40f
         val timeX = (pageWidth - marginLeft) - 120f
 
-        val paint = android.graphics.Paint().apply {
+        val paint = Paint().apply {
             isAntiAlias = true
-            color = android.graphics.Color.BLACK
+            color = Color.BLACK
             textSize = 12f
         }
 

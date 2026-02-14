@@ -1,4 +1,4 @@
-package com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens
+package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement

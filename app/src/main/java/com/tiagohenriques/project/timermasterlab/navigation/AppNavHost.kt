@@ -8,10 +8,11 @@ import androidx.navigation.compose.composable
 import com.tiagohenriques.project.timermasterlab.ui.HomeScreen
 import com.tiagohenriques.project.timermasterlab.ui.groupRace.GroupRace
 import com.tiagohenriques.project.timermasterlab.ui.settings.SettingsScreen
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.BeginGroupRaceScreen
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.BeginTimeTrialScreen
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.SessionResultsScreen
+import com.tiagohenriques.project.timermasterlab.ui.subScreens.StartListScreen
 import com.tiagohenriques.project.timermasterlab.ui.timeTrial.TimeTrial
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.BeginTimeTrialScreen
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.SessionResultsScreen
-import com.tiagohenriques.project.timermasterlab.ui.timeTrial.subScreens.StartListScreen
 
 @Composable
 fun AppNavHost(
@@ -31,29 +32,31 @@ fun AppNavHost(
         composable(TimerMasterLabAppScreens.Home.name) {
             HomeScreen(navController = navController)
         }
-
         // Group Race
         composable(TimerMasterLabAppScreens.GroupRace.name) {
             GroupRace(navController = navController)
         }
-
         // Time Trial
         composable(TimerMasterLabAppScreens.TimeTrial.name) {
             TimeTrial(navController = navController)
         }
         // Start List
         composable(TimerMasterLabAppScreens.StartList.name) {
-            StartListScreen(navController = navController)
+            StartListScreen(navController = navController) // TODO: THIS WILL NEED TO TAKE A PARAMETER FOR TIME TRIAL or GROUP RACE
         }
         // Begin Time Trial
         composable(TimerMasterLabAppScreens.BeginTimeTrial.name) {
             BeginTimeTrialScreen(navController = navController)
         }
+        // Begin Group Race
+        composable(TimerMasterLabAppScreens.BeginGroupRace.name)
+        {
+            BeginGroupRaceScreen(navController = navController)
+        }
         // Session Results
         composable(TimerMasterLabAppScreens.SessionResults.name) {
             SessionResultsScreen(navController = navController)
         }
-
         // Settings
         composable(TimerMasterLabAppScreens.Settings.name) {
             SettingsScreen(

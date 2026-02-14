@@ -11,6 +11,7 @@ enum class TimerMasterLabAppScreens(
     TimeTrial(title = R.string.time_trial),
     StartList(title = R.string.start_list),
     BeginTimeTrial(title = R.string.begin_time_trial),
+    BeginGroupRace(title = R.string.begin_group_race),
     SessionResults(title = R.string.session_results),
     Settings(title = R.string.settings),
     ;
