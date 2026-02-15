@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -36,6 +37,7 @@ import java.util.Locale
 data class StartListUiState(
     val draft: List<DraftStartListItem> = emptyList(),
     val hasUnsavedChanges: Boolean = false,
+    val isLoading: Boolean = false,
 )
 
 data class DraftStartListItem(
@@ -50,65 +52,99 @@ class StartListViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(StartListUiState())
     val uiState: StateFlow<StartListUiState> = _uiState.asStateFlow()
+    private lateinit var currentMode: Type
 
-    // TODO: ADAPT SOMETHING FOR ALLOWING ATHLETE TO BE ADDED WITH SAME ORDER AND FOR THE GROUP RACE
+    fun loadStartListForMode(mode: String) {
+        Log.d("StartListViewModel", "Loading start list for mode: $mode")
+        _uiState.update { it.copy(isLoading = true) }
 
-    init {
+        currentMode = Type.fromStringToType(mode.replace("_", " "))!!
         viewModelScope.launch {
-            startListEntryRepository
-                .getTimeTrialStartList()
-                .take(1)
-                .collect { entries ->
-                    val draftItems = coroutineScope {
-                        entries.map { entry ->
-                            async {
-                                val athlete = athletesRepository
-                                    .getAthleteById(entry.athleteId)
-                                    .first()
+            val flow = if (Type.fromStringToType(mode) == Type.GROUP_RACE) {
+                startListEntryRepository.getGroupRaceStartList()
+            } else {
+                startListEntryRepository.getTimeTrialStartList()
+            }
 
-                                DraftStartListItem(
-                                    athlete = athlete,
-                                    startOrder = entry.startOrder,
-                                    distanceMeters = entry.distanceMeters,
-                                )
-                            }
-                        }.awaitAll()
-                    }
+            flow.take(1).collect { entries ->
+                Log.d("StartListViewModel", "Loaded ${entries.size} entries: $entries")
+                val draftItems = coroutineScope {
+                    entries.map { entry ->
+                        async {
+                            val athlete = athletesRepository
+                                .getAthleteById(entry.athleteId)
+                                .first()
 
-                    _uiState.value = StartListUiState(draft = draftItems)
+                            DraftStartListItem(
+                                athlete = athlete,
+                                startOrder = entry.startOrder,
+                                distanceMeters = entry.distanceMeters,
+                            )
+                        }
+                    }.awaitAll()
                 }
+
+                _uiState.value = StartListUiState(draft = draftItems)
+            }
+
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
 
     fun addAthleteToDraft(
         athlete: Athlete,
         distanceMeters: Float,
+        startOrder: Int? = null,
     ) {
         viewModelScope.launch {
             val athleteId = athletesRepository.insert(athlete)
             val savedAthlete = athlete.copy(id = athleteId)
 
             _uiState.update { state ->
-                val nextOrder = state.draft.size + 1
-                state.copy(
-                    draft = state.draft + DraftStartListItem(
-                        athlete = savedAthlete,
-                        startOrder = nextOrder,
-                        distanceMeters = distanceMeters
-                    ),
-                    hasUnsavedChanges = true
-                )
+                if (currentMode == Type.GROUP_RACE) {
+                    Log.d("StartListViewModel", "Adding athlete to GROUP_RACE draft")
+                    val assignedOrder = startOrder?.coerceAtLeast(1) ?: (state.draft.size + 1)
+
+                    state.copy(
+                        draft = state.draft + DraftStartListItem(
+                            athlete = savedAthlete,
+                            startOrder = assignedOrder,
+                            distanceMeters = distanceMeters
+                        ),
+                        hasUnsavedChanges = true
+                    )
+                } else {
+                    Log.d("StartListViewModel", "Adding athlete to TIME_TRIAL draft")
+                    val safeStartOrder = startOrder?.coerceAtLeast(1)
+                    val insertIndex = safeStartOrder?.let { (it - 1).coerceIn(0, state.draft.size) } ?: state.draft.size
+
+                    val newDraft = state.draft.toMutableList().apply {
+                        add(
+                            insertIndex, DraftStartListItem(
+                                athlete = savedAthlete,
+                                startOrder = insertIndex + 1,
+                                distanceMeters = distanceMeters
+                            )
+                        )
+                    }.mapIndexed { index, item -> item.copy(startOrder = index + 1) }
+
+                    state.copy(draft = newDraft, hasUnsavedChanges = true)
+                }
             }
         }
     }
 
     fun removeDraftItem(athleteId: Long) {
-        _uiState.update {
-            val updated = it.draft
-                .filterNot { it.athlete.id == athleteId }
-                .mapIndexed { i, item -> item.copy(startOrder = i + 1) }
+        _uiState.update { state ->
+            val updated = state.draft.filterNot { it.athlete.id == athleteId }
 
-            it.copy(draft = updated, hasUnsavedChanges = true)
+            val resulting = if (currentMode == Type.GROUP_RACE) {
+                updated
+            } else {
+                updated.mapIndexed { i, item -> item.copy(startOrder = i + 1) }
+            }
+
+            state.copy(draft = resulting, hasUnsavedChanges = true)
         }
     }
 
@@ -117,30 +153,51 @@ class StartListViewModel(
             athletesRepository.update(updated.athlete)
 
             _uiState.update { state ->
-                val withoutItem = state.draft.filterNot {
-                    it.athlete.id == updated.athlete.id
-                }
-
-                val insertIndex = (updated.startOrder - 1)
-                    .coerceIn(0, withoutItem.size)
-
-                val reordered = withoutItem
-                    .toMutableList()
-                    .apply { add(insertIndex, updated) }
-                    .mapIndexed { index, item ->
-                        item.copy(startOrder = index + 1)
+                if (currentMode == Type.GROUP_RACE) {
+                    val replaced = state.draft.map { item ->
+                        if (item.athlete.id == updated.athlete.id) {
+                            item.copy(
+                                athlete = updated.athlete,
+                                distanceMeters = updated.distanceMeters,
+                                startOrder = updated.startOrder
+                            )
+                        } else item
                     }
 
-                state.copy(
-                    draft = reordered,
-                    hasUnsavedChanges = true
-                )
+                    state.copy(draft = replaced, hasUnsavedChanges = true)
+                } else {
+                    val withoutItem = state.draft.filterNot {
+                        it.athlete.id == updated.athlete.id
+                    }
+
+                    val safeOrder = updated.startOrder.coerceAtLeast(1)
+                    val insertIndex = (safeOrder - 1)
+                        .coerceIn(0, withoutItem.size)
+
+                    val reordered = withoutItem
+                        .toMutableList()
+                        .apply { add(insertIndex, updated) }
+                        .mapIndexed { index, item ->
+                            item.copy(startOrder = index + 1)
+                        }
+
+                    state.copy(
+                        draft = reordered,
+                        hasUnsavedChanges = true
+                    )
+                }
             }
         }
     }
 
     fun commitStartList() = viewModelScope.launch {
-        startListEntryRepository.clearTimeTrialStartList()
+        if (currentMode == Type.TIME_TRIAL) {
+            Log.d("StartListViewModel", "Clearing time trial start list to save a new one")
+            startListEntryRepository.clearTimeTrialStartList()
+        } else if (currentMode == Type.GROUP_RACE) {
+            Log.d("StartListViewModel", "Clearing group race start list to save a new one")
+            startListEntryRepository.clearGroupRaceStartList()
+        }
 
         uiState.value.draft.forEach { item ->
             startListEntryRepository.insert(
@@ -148,7 +205,7 @@ class StartListViewModel(
                     athleteId = item.athlete.id,
                     startOrder = item.startOrder,
                     distanceMeters = item.distanceMeters,
-                    type = Type.TIME_TRIAL.displayName
+                    type = Type.fromTypeToString(currentMode) ?: ""
                 )
             )
         }
@@ -164,9 +221,15 @@ class StartListViewModel(
         val newDraft = oldDraft.toMutableList().apply {
             val item = removeAt(fromIndex)
             add(toIndex, item)
-        }.mapIndexed { index, draftItem -> draftItem.copy(startOrder = index + 1) }
+        }
 
-        _uiState.update { it.copy(draft = newDraft, hasUnsavedChanges = true) }
+        val resulting = if (currentMode == Type.GROUP_RACE) {
+            newDraft
+        } else {
+            newDraft.mapIndexed { index, draftItem -> draftItem.copy(startOrder = index + 1) }
+        }
+
+        _uiState.update { it.copy(draft = resulting, hasUnsavedChanges = true) }
     }
 
     fun exportStartListToPDF(context: Context) = viewModelScope.launch {
@@ -192,7 +255,7 @@ class StartListViewModel(
 
                 fun startNewPage(): PdfDocument.Page {
                     val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageIndex + 1).create()
-                    pageIndex++
+                    pageIndex += 1
                     yPos = margin
                     return pdf.startPage(pageInfo)
                 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
 import com.tiagohenriques.project.timermasterlab.ui.components.HeaderCard
 import com.tiagohenriques.project.timermasterlab.ui.components.ScreenCard
@@ -40,7 +41,7 @@ val timeTrialScreensList = listOf(
         title = "Start List",
         description = "Add athletes to the start list",
         icon = Icons.Default.Grading,
-        route = TimerMasterLabAppScreens.StartList.name,
+        route = "${TimerMasterLabAppScreens.StartList.name}/${Type.fromTypeToString(Type.TIME_TRIAL)}",
     ),
     TimeTrialScreen(
         title = "Begin Time Trial",

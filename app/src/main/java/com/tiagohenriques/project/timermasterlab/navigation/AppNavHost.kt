@@ -3,8 +3,11 @@ package com.tiagohenriques.project.timermasterlab.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.ui.HomeScreen
 import com.tiagohenriques.project.timermasterlab.ui.groupRace.GroupRace
 import com.tiagohenriques.project.timermasterlab.ui.settings.SettingsScreen
@@ -40,9 +43,13 @@ fun AppNavHost(
         composable(TimerMasterLabAppScreens.TimeTrial.name) {
             TimeTrial(navController = navController)
         }
-        // Start List
-        composable(TimerMasterLabAppScreens.StartList.name) {
-            StartListScreen(navController = navController) // TODO: THIS WILL NEED TO TAKE A PARAMETER FOR TIME TRIAL or GROUP RACE
+        // Start List - expects a "mode" parameter (e.g. TimeTrial or GroupRace)
+        composable(
+            route = "${TimerMasterLabAppScreens.StartList.name}/{mode}",
+            arguments = listOf(navArgument("mode") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val mode = backStackEntry.arguments?.getString("mode") ?: Type.TIME_TRIAL.toString()
+            StartListScreen(navController = navController, mode = mode)
         }
         // Begin Time Trial
         composable(TimerMasterLabAppScreens.BeginTimeTrial.name) {

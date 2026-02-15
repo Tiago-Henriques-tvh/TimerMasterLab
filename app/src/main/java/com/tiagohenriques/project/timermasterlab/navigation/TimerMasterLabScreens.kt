@@ -13,10 +13,13 @@ enum class TimerMasterLabAppScreens(
     BeginTimeTrial(title = R.string.begin_time_trial),
     BeginGroupRace(title = R.string.begin_group_race),
     SessionResults(title = R.string.session_results),
-    Settings(title = R.string.settings),
-    ;
+    Settings(title = R.string.settings);
 
     companion object {
-        fun fromRoute(route: String?): TimerMasterLabAppScreens = entries.find { it.name == route } ?: Home
+        fun fromRoute(route: String?): TimerMasterLabAppScreens {
+            if (route == null) return Home
+            val base = route.substringBefore('/')
+            return entries.find { it.name == base } ?: Home
+        }
     }
 }

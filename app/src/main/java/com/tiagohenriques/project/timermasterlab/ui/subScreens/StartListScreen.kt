@@ -2,6 +2,7 @@ package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -28,11 +30,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,15 +44,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Category
+import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 import com.tiagohenriques.project.timermasterlab.ui.components.AddAthleteDialog
 import com.tiagohenriques.project.timermasterlab.ui.components.ReorderableLazyColumn
 
 @Composable
-fun StartListScreen(navController: NavHostController) {
+fun StartListScreen(navController: NavHostController, mode: String = "Time Trial") {
     val viewModel: StartListViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(mode) {
+        viewModel.loadStartListForMode(mode)
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -66,13 +75,15 @@ fun StartListScreen(navController: NavHostController) {
         },
     ) { _ ->
         StartListContent(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             uiState = uiState,
             onRemove = viewModel::removeDraftItem,
             onAdd = {
                 viewModel.addAthleteToDraft(
                     athlete = it.athlete,
-                    distanceMeters = it.distanceMeters
+                    distanceMeters = it.distanceMeters,
+                    startOrder = it.startOrder
                 )
             },
             onEdit = {
@@ -82,7 +93,8 @@ fun StartListScreen(navController: NavHostController) {
                 viewModel.exportStartListToPDF(context)
             },
             save = { viewModel.commitStartList() },
-            onMove = viewModel::moveDraftItem
+            onMove = viewModel::moveDraftItem,
+            mode = mode
         )
     }
 }
@@ -96,12 +108,15 @@ private fun StartListContent(
     onEdit: (DraftStartListItem) -> Unit,
     onExport: () -> Unit,
     save: () -> Unit,
-    onMove: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> }
+    onMove: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
+    mode: String,
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var itemToEdit by remember { mutableStateOf<DraftStartListItem?>(null) }
 
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier,
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -137,22 +152,41 @@ private fun StartListContent(
             modifier = Modifier.padding(start = 12.dp)
         )
 
-        ReorderableLazyColumn(
-            items = uiState.draft,
-            modifier = Modifier.padding(PaddingValues(12.dp)),
-            onMove = { from, to ->
-                Log.d("StartList", "onMove called: from=$from to=$to")
-                onMove(from, to)
-            },
-            key = { it.athlete.id }
-        ) { item, isDragging, dragModifier ->
-            AthleteCard(
-                item = item,
-                isDragging = isDragging,
-                dragModifier = dragModifier,
-                onEdit = { itemToEdit = item },
-                onRemove = { onRemove(item.athlete.id) }
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+        ) {
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                if (Type.fromStringToType(mode) == Type.TIME_TRIAL) {
+                    ReorderableLazyColumn(
+                        items = uiState.draft,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(PaddingValues(12.dp)),
+                        onMove = { from, to ->
+                            Log.d("StartList", "onMove called: from=$from to=$to")
+                            onMove(from, to)
+                        },
+                        key = { it.athlete.id }
+                    ) { item, isDragging, dragModifier ->
+                        AthleteCard(
+                            item = item,
+                            isDragging = isDragging,
+                            modifier = dragModifier,
+                            onEdit = { itemToEdit = item },
+                            onRemove = { onRemove(item.athlete.id) }
+                        )
+                    }
+                } else {
+                    // TODO: GROUP IN A BOX THE ITEMS/ATHLETES
+                    // LazyColumn() { }
+                }
+            }
         }
     }
 
@@ -164,7 +198,7 @@ private fun StartListContent(
             onConfirm = {
                 onAdd(it)
                 showAddDialog = false
-            }
+            },
         )
     }
 
@@ -176,7 +210,7 @@ private fun StartListContent(
             onConfirm = {
                 onEdit(it)
                 itemToEdit = null
-            }
+            },
         )
     }
 }
@@ -187,17 +221,17 @@ private fun AthleteCard(
     onEdit: () -> Unit,
     onRemove: () -> Unit,
     isDragging: Boolean = false,
-    dragModifier: Modifier = Modifier
+    modifier: Modifier = Modifier
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = dragModifier
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(12.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -242,5 +276,13 @@ private fun AthleteCard(
 @Preview(showBackground = true)
 @Composable
 fun StartListScreenPreview() {
-    StartListContent(uiState = StartListUiState(), onRemove = {}, onAdd = {}, onEdit = {}, onExport = {}, save = {})
+    StartListContent(
+        uiState = StartListUiState(),
+        onRemove = {},
+        onAdd = {},
+        onEdit = {},
+        onExport = {},
+        save = {},
+        mode = "Time Trial"
+    )
 }

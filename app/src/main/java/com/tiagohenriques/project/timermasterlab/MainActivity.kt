@@ -44,11 +44,9 @@ class MainActivity : ComponentActivity() {
                 val layoutDirection = LocalLayoutDirection.current // TODO: FIX THIS TO ADJUST SCREEN SIZE
                 val navController = rememberNavController()
                 val backStackEntry by navController.currentBackStackEntryAsState()
-                val currentScreenTitle =
-                    TimerMasterLabAppScreens
-                        .fromRoute(
-                            backStackEntry?.destination?.route,
-                        ).title
+                val currentScreenTitle = TimerMasterLabAppScreens.fromRoute(
+                    backStackEntry?.destination?.route,
+                ).title
 
                 Scaffold(
                     modifier =
@@ -65,8 +63,8 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             currentScreenTitle = currentScreenTitle,
-                            canNavigateBack =
-                                navController.previousBackStackEntry != null && (currentScreenTitle in listOf(
+                            canNavigateBack = navController.previousBackStackEntry != null && (
+                                currentScreenTitle in listOf(
                                     TimerMasterLabAppScreens.Home.title,
                                     TimerMasterLabAppScreens.GroupRace.title,
                                     TimerMasterLabAppScreens.Settings.title,
