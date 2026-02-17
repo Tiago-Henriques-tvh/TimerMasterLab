@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -137,7 +138,7 @@ private fun StartListContent(
                     onExport()
                     save()
                 },
-                modifier = Modifier.width(120.dp)
+                modifier = Modifier.weight(0.48f)
             ) {
                 Icon(Icons.Default.Download, contentDescription = "Export")
                 Spacer(Modifier.width(4.dp))
@@ -183,8 +184,55 @@ private fun StartListContent(
                         )
                     }
                 } else {
-                    // TODO: GROUP IN A BOX THE ITEMS/ATHLETES
-                    // LazyColumn() { }
+                    val grouped = uiState.draft
+                        .sortedBy { it.startOrder }
+                        .groupBy { it.startOrder }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+
+                        grouped.forEach { (startOrder, athletesInGroup) ->
+
+                            item(key = "group_$startOrder") {
+
+                                Card(
+                                    shape = MaterialTheme.shapes.large,
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                                    )
+                                ) {
+
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+
+                                        Text(
+                                            text = "Start Group $startOrder",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+
+                                        athletesInGroup.forEach { item ->
+
+                                            AthleteCard(
+                                                item = item,
+                                                onEdit = { itemToEdit = item },
+                                                onRemove = { onRemove(item.athlete.id) }
+                                            )
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

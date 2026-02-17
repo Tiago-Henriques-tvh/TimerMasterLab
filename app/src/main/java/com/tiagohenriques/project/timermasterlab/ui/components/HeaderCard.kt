@@ -1,11 +1,14 @@
 package com.tiagohenriques.project.timermasterlab.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +30,7 @@ fun HeaderCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .heightIn(min = 140.dp, max = 280.dp)
             .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -34,7 +38,9 @@ fun HeaderCard(
     ) {
         Column(
             modifier = Modifier
-                .padding(20.dp)
+                .fillMaxSize()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.Center
         ) {
             Box(
                 modifier = Modifier
