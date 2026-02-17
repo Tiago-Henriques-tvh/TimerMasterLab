@@ -1,5 +1,6 @@
 package com.tiagohenriques.project.timermasterlab.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +53,7 @@ private data class HomeButton(
     val endColor: Color,
 )
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun HomeScreen(navController: NavController) {
     val colors = listOf(
@@ -73,10 +75,9 @@ fun HomeScreen(navController: NavController) {
             .padding(12.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        val configuration = LocalConfiguration.current
-        val screenWidthDp = configuration.screenWidthDp.dp
+        val screenWidth = LocalConfiguration.current.screenWidthDp
         val minWidthForTwoColumns = 520.dp
-        val columns = if (screenWidthDp < minWidthForTwoColumns) GridCells.Fixed(1) else GridCells.Fixed(2)
+        val columns = if (screenWidth.dp < minWidthForTwoColumns) GridCells.Fixed(1) else GridCells.Fixed(2)
 
         LazyVerticalGrid(
             columns = columns,
@@ -94,7 +95,8 @@ fun HomeScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     startColor = button.startColor,
-                    endColor = button.endColor
+                    endColor = button.endColor,
+                    screenWidth = screenWidth
                 )
             }
         }
@@ -109,7 +111,13 @@ private fun HomeNavigationButton(
     modifier: Modifier,
     startColor: Color,
     endColor: Color,
+    screenWidth: Int,
 ) {
+    val horizontalPadding = (screenWidth * 0.08f).dp
+    val circleSize = (screenWidth * 0.12f).dp
+    val iconSize = circleSize * 0.45f
+    val textSize = (screenWidth * 0.045f).sp
+
     Card(
         onClick = onClick,
         modifier = modifier,
@@ -120,7 +128,7 @@ private fun HomeNavigationButton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(30.dp)
+                .padding(horizontalPadding)
                 .semantics { contentDescription = label },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
@@ -128,7 +136,7 @@ private fun HomeNavigationButton(
             val circleGradient = Brush.verticalGradient(listOf(startColor, endColor))
             Box(
                 modifier = Modifier
-                    .size(65.dp)
+                    .size(circleSize)
                     .clip(CircleShape)
                     .background(brush = circleGradient),
                 contentAlignment = Alignment.Center
@@ -136,18 +144,18 @@ private fun HomeNavigationButton(
                 Icon(
                     imageVector = icon,
                     contentDescription = "$label icon",
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier.size(iconSize),
                     tint = MaterialTheme.colorScheme.inverseOnSurface
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(horizontalPadding * 0.5f))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = label,
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 18.sp,
+                        fontSize = textSize,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )

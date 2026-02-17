@@ -1,5 +1,6 @@
 package com.tiagohenriques.project.timermasterlab
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,10 +13,10 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -30,6 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,11 +39,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: UserPreferencesViewModel = viewModel(factory = AppViewModelProvider.Factory)
             val isDarkTheme = viewModel.isDarkThemeFlow.collectAsState(initial = viewModel.getInitialTheme()).value
+            val screenWidth = LocalConfiguration.current.screenWidthDp
 
             TimerMasterLabTheme(
                 darkTheme = isDarkTheme,
             ) {
-                val layoutDirection = LocalLayoutDirection.current // TODO: FIX THIS TO ADJUST SCREEN SIZE
+                val layoutDirection = LocalLayoutDirection.current
                 val navController = rememberNavController()
                 val backStackEntry by navController.currentBackStackEntryAsState()
                 val currentScreenTitle = TimerMasterLabAppScreens.fromRoute(
@@ -51,14 +54,12 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier =
                         Modifier.padding(
-                            start =
-                                WindowInsets.safeDrawing
-                                    .asPaddingValues()
-                                    .calculateLeftPadding(layoutDirection),
-                            end =
-                                WindowInsets.safeDrawing
-                                    .asPaddingValues()
-                                    .calculateRightPadding(layoutDirection),
+                            start = WindowInsets.safeDrawing
+                                .asPaddingValues()
+                                .calculateLeftPadding(layoutDirection),
+                            end = WindowInsets.safeDrawing
+                                .asPaddingValues()
+                                .calculateRightPadding(layoutDirection),
                         ),
                     topBar = {
                         TopAppBar(
@@ -72,21 +73,18 @@ class MainActivity : ComponentActivity() {
                                     TimerMasterLabAppScreens.SessionResults.title
                                 )),
                             navigateUp = { navController.navigateUp() },
+                            screenWidth = screenWidth
                         )
                     },
                 ) { innerPadding ->
-                    val windowSize = calculateWindowSizeClass(this)
-
                     AppNavHost(
-                        windowSize = windowSize.widthSizeClass,
-                        preferencesViewModel = viewModel,
                         isDarkTheme = isDarkTheme,
                         changeTheme = { viewModel.changeTheme(!isDarkTheme) },
                         navController = navController,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
+                        layoutDirection = layoutDirection,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
                     )
                 }
             }

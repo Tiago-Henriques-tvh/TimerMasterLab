@@ -2,6 +2,7 @@ package com.tiagohenriques.project.timermasterlab.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,10 +22,9 @@ import com.tiagohenriques.project.timermasterlab.ui.timeTrial.TimeTrial
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    windowSize: Any,
-    preferencesViewModel: Any,
     changeTheme: () -> Unit,
     isDarkTheme: Boolean,
+    layoutDirection: LayoutDirection,
 ) {
     NavHost(
         navController = navController,

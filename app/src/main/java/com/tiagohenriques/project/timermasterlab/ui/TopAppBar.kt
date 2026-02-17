@@ -42,8 +42,16 @@ fun TopAppBar(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     actionIcons: @Composable RowScope.() -> Unit = {},
+    screenWidth: Int,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val isLargeScreen = screenWidth >= 600
+    val isSmallScreen = screenWidth < 360
+    val logoSize = when {
+        isSmallScreen -> 45.dp
+        isLargeScreen -> 65.dp
+        else -> 55.dp
+    }
 
     CenterAlignedTopAppBar(
         title = {
@@ -52,13 +60,12 @@ fun TopAppBar(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_flash_on_24),
+                    painter = painterResource(id = R.drawable.ic_launcher_playstore_removebg),
                     contentDescription = "App Logo",
                     tint = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier =
-                        Modifier
-                            .size(48.dp)
-                            .padding(4.dp),
+                    modifier = Modifier
+                        .size(logoSize)
+                        .padding(4.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
@@ -93,19 +100,17 @@ fun TopAppBar(
             }
         },
         actions = actionIcons,
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .background(
-                    brush =
-                        Brush.horizontalGradient(
-                            colors =
-                                listOf(
-                                    MaterialTheme.colorScheme.primaryContainer,
-                                    MaterialTheme.colorScheme.secondaryContainer,
-                                ),
-                        ),
-                ).clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.secondaryContainer,
+                    ),
+                ),
+            )
+            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
         colors =
             TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.Transparent,
@@ -123,6 +128,7 @@ fun TopAppBarPreview() {
             currentScreenTitle = R.string.app_name,
             canNavigateBack = true,
             navigateUp = {},
+            screenWidth = 360
         )
     }
 }
