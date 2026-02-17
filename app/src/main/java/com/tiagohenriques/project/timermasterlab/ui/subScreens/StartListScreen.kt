@@ -50,7 +50,7 @@ import com.tiagohenriques.project.timermasterlab.ui.components.AddAthleteDialog
 import com.tiagohenriques.project.timermasterlab.ui.components.ReorderableLazyColumn
 
 @Composable
-fun StartListScreen(navController: NavHostController, mode: String = "Time Trial") {
+fun StartListScreen(navController: NavHostController, mode: String = "Time Trial", screenWidth: Int) {
     val viewModel: StartListViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current

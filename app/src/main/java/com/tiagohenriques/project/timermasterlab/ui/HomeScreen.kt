@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -55,7 +54,7 @@ private data class HomeButton(
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, screenWidth: Int) {
     val colors = listOf(
         Pair(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary),
         Pair(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.secondary),
@@ -75,7 +74,6 @@ fun HomeScreen(navController: NavController) {
             .padding(12.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        val screenWidth = LocalConfiguration.current.screenWidthDp
         val minWidthForTwoColumns = 520.dp
         val columns = if (screenWidth.dp < minWidthForTwoColumns) GridCells.Fixed(1) else GridCells.Fixed(2)
 
@@ -169,6 +167,9 @@ private fun HomeNavigationButton(
 @Composable
 fun HomeScreenPreview() {
     TimerMasterLabTheme {
-        HomeScreen(navController = rememberNavController())
+        HomeScreen(
+            navController = rememberNavController(),
+            screenWidth = 600
+        )
     }
 }

@@ -58,7 +58,7 @@ val timeTrialScreensList = listOf(
 )
 
 @Composable
-fun TimeTrial(navController: NavHostController) {
+fun TimeTrial(navController: NavHostController, screenWidth: Int) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -111,6 +111,7 @@ fun TimeTrialPreview() {
     TimerMasterLabTheme {
         TimeTrial(
             navController = NavHostController(LocalContext.current),
+            screenWidth = 600
         )
     }
 }

@@ -2,7 +2,6 @@ package com.tiagohenriques.project.timermasterlab.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,7 +23,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     changeTheme: () -> Unit,
     isDarkTheme: Boolean,
-    layoutDirection: LayoutDirection,
+    screenWidth: Int,
 ) {
     NavHost(
         navController = navController,
@@ -33,15 +32,15 @@ fun AppNavHost(
     ) {
         // Home
         composable(TimerMasterLabAppScreens.Home.name) {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, screenWidth = screenWidth)
         }
         // Group Race
         composable(TimerMasterLabAppScreens.GroupRace.name) {
-            GroupRace(navController = navController)
+            GroupRace(navController = navController, screenWidth = screenWidth)
         }
         // Time Trial
         composable(TimerMasterLabAppScreens.TimeTrial.name) {
-            TimeTrial(navController = navController)
+            TimeTrial(navController = navController, screenWidth = screenWidth)
         }
         // Start List - expects a "mode" parameter (e.g. TimeTrial or GroupRace)
         composable(
@@ -49,20 +48,20 @@ fun AppNavHost(
             arguments = listOf(navArgument("mode") { type = NavType.StringType })
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode") ?: Type.TIME_TRIAL.toString()
-            StartListScreen(navController = navController, mode = mode)
+            StartListScreen(navController = navController, screenWidth = screenWidth, mode = mode)
         }
         // Begin Time Trial
         composable(TimerMasterLabAppScreens.BeginTimeTrial.name) {
-            BeginTimeTrialScreen(navController = navController)
+            BeginTimeTrialScreen(navController = navController, screenWidth = screenWidth)
         }
         // Begin Group Race
         composable(TimerMasterLabAppScreens.BeginGroupRace.name)
         {
-            BeginGroupRaceScreen(navController = navController)
+            BeginGroupRaceScreen(navController = navController, screenWidth = screenWidth)
         }
         // Session Results
         composable(TimerMasterLabAppScreens.SessionResults.name) {
-            SessionResultsScreen(navController = navController)
+            SessionResultsScreen(navController = navController, screenWidth = screenWidth)
         }
         // Settings
         composable(TimerMasterLabAppScreens.Settings.name) {
@@ -70,6 +69,7 @@ fun AppNavHost(
                 navController = navController,
                 changeTheme = { isBlackTheme -> changeTheme() },
                 isBlackTheme = isDarkTheme,
+                screenWidth = screenWidth
             )
         }
     }

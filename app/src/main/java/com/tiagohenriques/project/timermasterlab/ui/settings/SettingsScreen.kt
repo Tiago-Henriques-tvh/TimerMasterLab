@@ -29,6 +29,7 @@ fun SettingsScreen(
     navController: NavHostController,
     changeTheme: (Boolean) -> Unit,
     isBlackTheme: Boolean = false,
+    screenWidth: Int,
 ) {
     LazyColumn(
         modifier = Modifier.padding(vertical = 16.dp),
@@ -106,7 +107,7 @@ fun SettingsScreenPreview() {
         SettingsScreen(
             navController = rememberNavController(),
             changeTheme = { _ -> },
-            isBlackTheme = false,
+            screenWidth = 600
         )
     }
 }

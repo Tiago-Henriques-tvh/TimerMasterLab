@@ -55,7 +55,7 @@ import com.tiagohenriques.project.timermasterlab.ui.components.SectionHeader
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils.Companion.formatDuration
 
 @Composable
-fun BeginTimeTrialScreen(navController: NavHostController) {
+fun BeginTimeTrialScreen(navController: NavHostController, screenWidth: Int) {
     val viewModel: BeginTimeTrialViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val sessionTime by viewModel.sessionTime.collectAsState()

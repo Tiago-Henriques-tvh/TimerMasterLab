@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 
 @Composable
-fun BeginGroupRaceScreen(navController: NavHostController) {
+fun BeginGroupRaceScreen(navController: NavHostController, screenWidth: Int) {
     Text("Begin Group Race Screen")
 }
 

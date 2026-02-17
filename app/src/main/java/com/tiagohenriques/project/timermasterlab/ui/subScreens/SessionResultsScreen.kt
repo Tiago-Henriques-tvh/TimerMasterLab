@@ -48,7 +48,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 @Composable
-fun SessionResultsScreen(navController: NavHostController) {
+fun SessionResultsScreen(navController: NavHostController, screenWidth: Int) {
     val viewModel: SessionResultViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val sessions by viewModel.getAllTrialSessions().collectAsState(initial = emptyList())
     var selectedSession by remember { mutableStateOf<Session?>(null) }

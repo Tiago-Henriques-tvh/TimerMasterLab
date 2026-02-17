@@ -58,7 +58,7 @@ val groupRaceScreensList = listOf(
 )
 
 @Composable
-fun GroupRace(navController: NavHostController) {
+fun GroupRace(navController: NavHostController, screenWidth: Int) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,6 +109,8 @@ fun GroupRace(navController: NavHostController) {
 @Composable
 fun GroupRacePreview() {
     TimerMasterLabTheme {
-        GroupRace(navController = rememberNavController())
+        GroupRace(
+            navController = rememberNavController(), screenWidth = 600
+        )
     }
 }

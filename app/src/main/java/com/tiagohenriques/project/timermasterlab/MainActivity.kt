@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
                         isDarkTheme = isDarkTheme,
                         changeTheme = { viewModel.changeTheme(!isDarkTheme) },
                         navController = navController,
-                        layoutDirection = layoutDirection,
+                        screenWidth = screenWidth,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
