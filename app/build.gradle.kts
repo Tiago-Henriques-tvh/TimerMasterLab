@@ -113,6 +113,7 @@ dependencies {
     implementation(libs.google.android.gms.play.services.location)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
