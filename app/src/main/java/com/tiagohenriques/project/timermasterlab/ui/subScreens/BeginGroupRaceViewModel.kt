@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 
 data class GroupRaceUiState(
-    val draft: List<DraftTimeTrialItem> = emptyList(),
+    val draft: List<DraftGroupRaceItem> = emptyList(),
     val hasEnded: Boolean = false,
 )
 
@@ -55,7 +55,7 @@ class BeginGroupRaceViewModel(
 
             val draftItems = startListEntries.map { entry ->
                 val athlete = athletesMap[entry.athleteId]!!
-                DraftTimeTrialItem(
+                DraftGroupRaceItem(
                     sessionId = sessionId,
                     athlete = athlete,
                     result = null,
