@@ -31,7 +31,6 @@ import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 
 data class GroupRaceScreen(
     val title: String,
-    val description: String,
     val route: String,
     val icon: ImageVector,
 )
@@ -39,19 +38,16 @@ data class GroupRaceScreen(
 val groupRaceScreensList = listOf(
     GroupRaceScreen(
         title = "Start List",
-        description = "Add athletes to the start list",
         icon = Icons.Default.Grading,
         route = "${TimerMasterLabAppScreens.StartList.name}/${Type.fromTypeToString(Type.GROUP_RACE)}",
     ),
     GroupRaceScreen(
         title = "Begin Group Race",
-        description = "Begin the side-by-side racing",
         icon = Icons.Default.SkipNext,
         route = TimerMasterLabAppScreens.BeginGroupRace.name,
     ),
     GroupRaceScreen(
         title = "Sessions Results",
-        description = "See the results of the sessions",
         icon = Icons.Default.Analytics,
         route = TimerMasterLabAppScreens.SessionResults.name,
     ),
@@ -87,7 +83,6 @@ fun GroupRace(navController: NavHostController, screenWidth: Int) {
             ) { screen ->
                 ScreenCard(
                     title = screen.title,
-                    description = screen.description,
                     icon = screen.icon,
                     onClick = { navController.navigate(screen.route) },
                     modifier = Modifier

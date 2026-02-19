@@ -31,7 +31,6 @@ import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 
 data class TimeTrialScreen(
     val title: String,
-    val description: String,
     val route: String,
     val icon: ImageVector,
 )
@@ -39,19 +38,16 @@ data class TimeTrialScreen(
 val timeTrialScreensList = listOf(
     TimeTrialScreen(
         title = "Start List",
-        description = "Add athletes to the start list",
         icon = Icons.Default.Grading,
         route = "${TimerMasterLabAppScreens.StartList.name}/${Type.fromTypeToString(Type.TIME_TRIAL)}",
     ),
     TimeTrialScreen(
         title = "Begin Time Trial",
-        description = "Begin the time trial",
         icon = Icons.Default.SkipNext,
         route = TimerMasterLabAppScreens.BeginTimeTrial.name,
     ),
     TimeTrialScreen(
         title = "Sessions Results",
-        description = "See the results of the sessions",
         icon = Icons.Default.Analytics,
         route = TimerMasterLabAppScreens.SessionResults.name,
     ),
@@ -87,7 +83,6 @@ fun TimeTrial(navController: NavHostController, screenWidth: Int) {
             ) { screen ->
                 ScreenCard(
                     title = screen.title,
-                    description = screen.description,
                     icon = screen.icon,
                     onClick = { navController.navigate(screen.route) },
                     modifier = Modifier

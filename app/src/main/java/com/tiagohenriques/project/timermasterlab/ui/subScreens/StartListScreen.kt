@@ -95,7 +95,8 @@ fun StartListScreen(navController: NavHostController, mode: String = "Time Trial
             },
             save = { viewModel.commitStartList() },
             onMove = viewModel::moveDraftItem,
-            mode = mode
+            mode = mode,
+            screenWidth = screenWidth
         )
     }
 }
@@ -111,6 +112,7 @@ private fun StartListContent(
     save: () -> Unit,
     onMove: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
     mode: String,
+    screenWidth: Int
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var itemToEdit by remember { mutableStateOf<DraftStartListItem?>(null) }
@@ -126,7 +128,7 @@ private fun StartListContent(
         ) {
             FilledTonalButton(
                 onClick = { showAddDialog = true },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(0.63f * screenWidth)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Athlete")
                 Spacer(Modifier.width(8.dp))
@@ -138,7 +140,7 @@ private fun StartListContent(
                     onExport()
                     save()
                 },
-                modifier = Modifier.weight(0.48f)
+                modifier = Modifier.weight(0.37f * screenWidth)
             ) {
                 Icon(Icons.Default.Download, contentDescription = "Export")
                 Spacer(Modifier.width(4.dp))
@@ -247,6 +249,7 @@ private fun StartListContent(
                 onAdd(it)
                 showAddDialog = false
             },
+            isTimeTrial = Type.fromStringToType(mode) == Type.TIME_TRIAL
         )
     }
 
@@ -259,6 +262,7 @@ private fun StartListContent(
                 onEdit(it)
                 itemToEdit = null
             },
+            isTimeTrial = Type.fromStringToType(mode) == Type.TIME_TRIAL
         )
     }
 }
@@ -331,6 +335,9 @@ fun StartListScreenPreview() {
         onEdit = {},
         onExport = {},
         save = {},
-        mode = "Time Trial"
+        mode = "Time Trial",
+        modifier = Modifier,
+        onMove = { _, _ -> },
+        screenWidth = 600
     )
 }

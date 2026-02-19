@@ -33,7 +33,8 @@ fun AddAthleteDialog(
     athlete: Athlete? = null,
     onDismiss: () -> Unit,
     onConfirm: (DraftStartListItem) -> Unit,
-    uiState: StartListUiState
+    uiState: StartListUiState,
+    isTimeTrial: Boolean
 ) {
     var name by remember { mutableStateOf(athlete?.name ?: "") }
     var age by remember { mutableStateOf(athlete?.age?.toString() ?: "") }
@@ -145,7 +146,7 @@ fun AddAthleteDialog(
                     }
                 }
 
-                if (athlete != null) {
+                if (athlete != null || !isTimeTrial) {
                     OutlinedTextField(
                         value = startOrder,
                         onValueChange = { if (it.all(Char::isDigit)) startOrder = it },
