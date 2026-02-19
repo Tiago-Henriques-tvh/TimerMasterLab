@@ -152,18 +152,14 @@ private fun BeginGroupRaceContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-
         grouped.forEach { (groupOrder, athletes) ->
-
             item(key = "group_$groupOrder") {
-
                 Card(
                     shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
-
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -196,11 +192,10 @@ private fun BeginGroupRaceContent(
                         }
 
                         athletes.forEach { item ->
-
                             val duration = item.result?.duration ?: 0L
                             val hasStarted = item.result?.startedAt != null
                             val hasFinished = duration > 0L
-
+                            // USE AthleteRow
                             Card(
                                 shape = MaterialTheme.shapes.medium,
                                 colors = CardDefaults.cardColors(
@@ -249,3 +244,4 @@ private fun BeginGroupRaceContent(
         }
     }
 }
+
