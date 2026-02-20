@@ -20,16 +20,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 
 @Composable
 fun SettingsScreen(
-    navController: NavHostController,
     changeTheme: (Boolean) -> Unit,
     isBlackTheme: Boolean = false,
-    screenWidth: Int,
 ) {
     LazyColumn(
         modifier = Modifier.padding(vertical = 16.dp),
@@ -105,9 +101,7 @@ fun SwitchSettingItem(
 fun SettingsScreenPreview() {
     TimerMasterLabTheme {
         SettingsScreen(
-            navController = rememberNavController(),
             changeTheme = { _ -> },
-            screenWidth = 600
         )
     }
 }

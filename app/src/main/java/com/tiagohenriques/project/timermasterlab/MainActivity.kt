@@ -16,7 +16,6 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -26,6 +25,7 @@ import com.tiagohenriques.project.timermasterlab.domain.UserPreferencesViewModel
 import com.tiagohenriques.project.timermasterlab.navigation.AppNavHost
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
 import com.tiagohenriques.project.timermasterlab.ui.TopAppBar
+import com.tiagohenriques.project.timermasterlab.ui.responsive.ProvideWindowSize
 import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,53 +39,52 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: UserPreferencesViewModel = viewModel(factory = AppViewModelProvider.Factory)
             val isDarkTheme = viewModel.isDarkThemeFlow.collectAsState(initial = viewModel.getInitialTheme()).value
-            val screenWidth = LocalConfiguration.current.screenWidthDp
 
             TimerMasterLabTheme(
                 darkTheme = isDarkTheme,
             ) {
-                val layoutDirection = LocalLayoutDirection.current
-                val navController = rememberNavController()
-                val backStackEntry by navController.currentBackStackEntryAsState()
-                val currentScreenTitle = TimerMasterLabAppScreens.fromRoute(
-                    backStackEntry?.destination?.route,
-                ).title
+                ProvideWindowSize {
+                    val layoutDirection = LocalLayoutDirection.current
+                    val navController = rememberNavController()
+                    val backStackEntry by navController.currentBackStackEntryAsState()
+                    val currentScreenTitle = TimerMasterLabAppScreens.fromRoute(
+                        backStackEntry?.destination?.route,
+                    ).title
 
-                Scaffold(
-                    modifier =
-                        Modifier.padding(
-                            start = WindowInsets.safeDrawing
-                                .asPaddingValues()
-                                .calculateLeftPadding(layoutDirection),
-                            end = WindowInsets.safeDrawing
-                                .asPaddingValues()
-                                .calculateRightPadding(layoutDirection),
-                        ),
-                    topBar = {
-                        TopAppBar(
-                            currentScreenTitle = currentScreenTitle,
-                            canNavigateBack = navController.previousBackStackEntry != null && (
-                                currentScreenTitle in listOf(
-                                    TimerMasterLabAppScreens.Home.title,
-                                    TimerMasterLabAppScreens.GroupRace.title,
-                                    TimerMasterLabAppScreens.Settings.title,
-                                    TimerMasterLabAppScreens.TimeTrial.title,
-                                    TimerMasterLabAppScreens.SessionResults.title
-                                )),
-                            navigateUp = { navController.navigateUp() },
-                            screenWidth = screenWidth
+                    Scaffold(
+                        modifier =
+                            Modifier.padding(
+                                start = WindowInsets.safeDrawing
+                                    .asPaddingValues()
+                                    .calculateLeftPadding(layoutDirection),
+                                end = WindowInsets.safeDrawing
+                                    .asPaddingValues()
+                                    .calculateRightPadding(layoutDirection),
+                            ),
+                        topBar = {
+                            TopAppBar(
+                                currentScreenTitle = currentScreenTitle,
+                                canNavigateBack = navController.previousBackStackEntry != null && (
+                                    currentScreenTitle in listOf(
+                                        TimerMasterLabAppScreens.Home.title,
+                                        TimerMasterLabAppScreens.GroupRace.title,
+                                        TimerMasterLabAppScreens.Settings.title,
+                                        TimerMasterLabAppScreens.TimeTrial.title,
+                                        TimerMasterLabAppScreens.SessionResults.title
+                                    )),
+                                navigateUp = { navController.navigateUp() },
+                            )
+                        },
+                    ) { innerPadding ->
+                        AppNavHost(
+                            isDarkTheme = isDarkTheme,
+                            changeTheme = { viewModel.changeTheme(!isDarkTheme) },
+                            navController = navController,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
                         )
-                    },
-                ) { innerPadding ->
-                    AppNavHost(
-                        isDarkTheme = isDarkTheme,
-                        changeTheme = { viewModel.changeTheme(!isDarkTheme) },
-                        navController = navController,
-                        screenWidth = screenWidth,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                    )
+                    }
                 }
             }
         }

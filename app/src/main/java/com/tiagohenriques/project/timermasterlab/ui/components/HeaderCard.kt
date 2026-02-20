@@ -4,13 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,11 +36,14 @@ fun HeaderCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(20.dp),
     ) {
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
                 .padding(20.dp),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -48,7 +51,6 @@ fun HeaderCard(
                     .width(40.dp)
                     .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(2.dp))
             )
-            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = title,
@@ -57,7 +59,7 @@ fun HeaderCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium.copy(

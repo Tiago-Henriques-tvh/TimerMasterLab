@@ -51,7 +51,7 @@ import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils.Companion.formatDuration
 
 @Composable
-fun BeginGroupRaceScreen(navController: NavHostController, screenWidth: Int) {
+fun BeginGroupRaceScreen(navController: NavHostController) {
     val viewModel: BeginGroupRaceViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val sessionTime by viewModel.sessionTime.collectAsState()

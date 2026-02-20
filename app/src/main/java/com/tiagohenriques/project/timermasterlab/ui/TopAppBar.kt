@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tiagohenriques.project.timermasterlab.R
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalWindowSize
 import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,8 +43,8 @@ fun TopAppBar(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     actionIcons: @Composable RowScope.() -> Unit = {},
-    screenWidth: Int,
 ) {
+    val screenWidth = LocalWindowSize.current.widthDp
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val isLargeScreen = screenWidth >= 600
     val isSmallScreen = screenWidth < 360
@@ -128,7 +129,6 @@ fun TopAppBarPreview() {
             currentScreenTitle = R.string.app_name,
             canNavigateBack = true,
             navigateUp = {},
-            screenWidth = 360
         )
     }
 }

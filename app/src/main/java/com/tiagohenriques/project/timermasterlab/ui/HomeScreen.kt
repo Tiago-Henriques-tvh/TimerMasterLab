@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalWindowSize
 import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 
 private data class HomeButton(
@@ -54,7 +55,9 @@ private data class HomeButton(
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
-fun HomeScreen(navController: NavController, screenWidth: Int) {
+fun HomeScreen(navController: NavController) {
+    val screenWidth = LocalWindowSize.current.widthDp
+
     val colors = listOf(
         Pair(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary),
         Pair(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.secondary),
@@ -94,7 +97,6 @@ fun HomeScreen(navController: NavController, screenWidth: Int) {
                         .fillMaxWidth(),
                     startColor = button.startColor,
                     endColor = button.endColor,
-                    screenWidth = screenWidth
                 )
             }
         }
@@ -109,8 +111,8 @@ private fun HomeNavigationButton(
     modifier: Modifier,
     startColor: Color,
     endColor: Color,
-    screenWidth: Int,
 ) {
+    val screenWidth = LocalWindowSize.current.widthDp
     val horizontalPadding = (screenWidth * 0.08f).dp
     val circleSize = (screenWidth * 0.12f).dp
     val iconSize = circleSize * 0.45f
@@ -169,7 +171,6 @@ fun HomeScreenPreview() {
     TimerMasterLabTheme {
         HomeScreen(
             navController = rememberNavController(),
-            screenWidth = 600
         )
     }
 }

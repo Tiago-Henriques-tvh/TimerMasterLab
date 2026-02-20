@@ -23,7 +23,6 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     changeTheme: () -> Unit,
     isDarkTheme: Boolean,
-    screenWidth: Int,
 ) {
     NavHost(
         navController = navController,
@@ -32,15 +31,15 @@ fun AppNavHost(
     ) {
         // Home
         composable(TimerMasterLabAppScreens.Home.name) {
-            HomeScreen(navController = navController, screenWidth = screenWidth)
+            HomeScreen(navController = navController)
         }
         // Group Race
         composable(TimerMasterLabAppScreens.GroupRace.name) {
-            GroupRace(navController = navController, screenWidth = screenWidth)
+            GroupRace(navController = navController)
         }
         // Time Trial
         composable(TimerMasterLabAppScreens.TimeTrial.name) {
-            TimeTrial(navController = navController, screenWidth = screenWidth)
+            TimeTrial(navController = navController)
         }
         // Start List - expects a "mode" parameter (e.g. TimeTrial or GroupRace)
         composable(
@@ -52,24 +51,22 @@ fun AppNavHost(
         }
         // Begin Time Trial
         composable(TimerMasterLabAppScreens.BeginTimeTrial.name) {
-            BeginTimeTrialScreen(navController = navController, screenWidth = screenWidth)
+            BeginTimeTrialScreen(navController = navController)
         }
         // Begin Group Race
         composable(TimerMasterLabAppScreens.BeginGroupRace.name)
         {
-            BeginGroupRaceScreen(navController = navController, screenWidth = screenWidth)
+            BeginGroupRaceScreen(navController = navController)
         }
         // Session Results
         composable(TimerMasterLabAppScreens.SessionResults.name) {
-            SessionResultsScreen(navController = navController, screenWidth = screenWidth)
+            SessionResultsScreen(navController = navController)
         }
         // Settings
         composable(TimerMasterLabAppScreens.Settings.name) {
             SettingsScreen(
-                navController = navController,
                 changeTheme = { isBlackTheme -> changeTheme() },
                 isBlackTheme = isDarkTheme,
-                screenWidth = screenWidth
             )
         }
     }
