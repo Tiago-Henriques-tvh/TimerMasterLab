@@ -13,15 +13,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -166,77 +170,36 @@ private fun BeginGroupRaceContent(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-
                             Text(
                                 text = "Group $groupOrder",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.weight(1f)
                             )
 
-                            val groupStarted =
-                                athletes.any { it.result?.startedAt != null }
-
-                            FilledTonalButton(
+                            val groupStarted = athletes.any { it.result?.startedAt != null }
+                            Button(
                                 onClick = { onStart(groupOrder) },
-                                enabled = !groupStarted
+                                enabled = !groupStarted,
+                                modifier = Modifier
+                                    .height(48.dp)
+                                    .width(96.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2E7D32)
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(
-                                    if (groupStarted) "Started"
-                                    else "Start"
+                                    "START",
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
                         }
 
                         athletes.forEach { item ->
-                            val duration = item.result?.duration ?: 0L
-                            val hasStarted = item.result?.startedAt != null
-                            val hasFinished = duration > 0L
-                            // USE AthleteRow
-                            Card(
-                                shape = MaterialTheme.shapes.medium,
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    Column(modifier = Modifier.weight(1f)) {
-
-                                        Text(
-                                            text = item.athlete.name,
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
-
-                                        Spacer(Modifier.height(4.dp))
-
-                                        Text(
-                                            text = when {
-                                                !hasStarted -> "Not started"
-                                                hasFinished -> formatDuration(duration)
-                                                else -> "Running..."
-                                            },
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                    }
-
-                                    if (hasStarted && !hasFinished) {
-                                        FilledTonalButton(
-                                            onClick = { onStop(item) }
-                                        ) {
-                                            Text("Stop")
-                                        }
-                                    }
-                                }
-                            }
+                            AthleteRow(item = item, onStop = { onStop(item) })
                         }
                     }
                 }
@@ -245,3 +208,93 @@ private fun BeginGroupRaceContent(
     }
 }
 
+@Composable
+fun AthleteRow(
+    item: DraftGroupRaceItem,
+    onStop: () -> Unit
+) {
+    val isRunning = item.result?.startedAt != null && item.result.duration == 0L
+    val isFinished = item.result?.duration != null && item.result.duration > 0
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(65.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = item.startOrder.toString(),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.width(12.dp))
+
+            Text(
+                text = item.athlete.name,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(Modifier.width(12.dp))
+
+            Text(
+                text = formatDuration(item.result?.duration ?: 0L),
+                modifier = Modifier.width(88.dp),
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.End
+            )
+
+            Spacer(Modifier.width(12.dp))
+
+            when {
+                isFinished -> {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = Color(0xFF2E7D32),
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+
+                isRunning -> {
+                    Button(
+                        onClick = onStop,
+                        modifier = Modifier
+                            .height(48.dp)
+                            .width(96.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFD32F2F)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            "STOP",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

@@ -182,7 +182,7 @@ private fun BeginTimeTrialContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(toStart, key = { it.athlete.id }) { item ->
-                        AthleteRow(item = item, onStart = { onStart(item) }, onStop = { onStop(item) }, true)
+                        AthleteRow(item = item, onStart = { onStart(item) }) { onStop(item) }
                     }
                 }
             }
@@ -203,10 +203,10 @@ private fun BeginTimeTrialContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(running, key = { it.athlete.id }) { item ->
-                        AthleteRow(item = item, onStart = { onStart(item) }, onStop = { onStop(item) }, true)
+                        AthleteRow(item = item, onStart = { onStart(item) }) { onStop(item) }
                     }
                     items(finished, key = { it.athlete.id }) { item ->
-                        AthleteRow(item = item, onStart = { onStart(item) }, onStop = { onStop(item) }, true)
+                        AthleteRow(item = item, onStart = { onStart(item) }) { onStop(item) }
                     }
                 }
             }
@@ -227,7 +227,7 @@ private fun BeginTimeTrialContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(running + finished, key = { it.athlete.id }) { item ->
-                        AthleteRow(item = item, onStart = { onStart(item) }, onStop = { onStop(item) }, true)
+                        AthleteRow(item = item, onStart = { onStart(item) }) { onStop(item) }
                     }
                 }
             }
@@ -239,8 +239,7 @@ private fun BeginTimeTrialContent(
 fun AthleteRow(
     item: DraftTimeTrialItem,
     onStart: () -> Unit,
-    onStop: () -> Unit,
-    isTimeTrial: Boolean
+    onStop: () -> Unit
 ) {
     val isRunning = item.result?.startedAt != null && item.result.duration == 0L
     val isFinished = item.result?.duration != null && item.result.duration > 0
@@ -325,22 +324,20 @@ fun AthleteRow(
                 }
 
                 else -> {
-                    if (isTimeTrial) {
-                        Button(
-                            onClick = onStart,
-                            modifier = Modifier
-                                .height(48.dp)
-                                .width(96.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF2E7D32)
-                            ),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(
-                                "START",
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    Button(
+                        onClick = onStart,
+                        modifier = Modifier
+                            .height(48.dp)
+                            .width(96.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF2E7D32)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            "START",
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -365,8 +362,6 @@ fun AthleteRowPreview() {
             startOrder = 1,
             distance = 1000F
         ),
-        onStart = {},
-        onStop = {},
-        isTimeTrial = true
-    )
+        onStart = {}
+    ) {}
 }
