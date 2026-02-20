@@ -139,12 +139,14 @@ private fun StartListContent(
             actions = toolbarActions,
         )
 
-        Text(
-            text = "Hold to drag and readjust athletes.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            modifier = Modifier.padding(start = 16.dp, top = 2.dp, bottom = 6.dp),
-        )
+        if (Type.fromStringToType(mode) == Type.TIME_TRIAL) {
+            Text(
+                text = "Hold to drag and readjust athletes.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                modifier = Modifier.padding(start = 16.dp, top = 2.dp, bottom = 6.dp),
+            )
+        }
 
         Box(
             modifier = Modifier

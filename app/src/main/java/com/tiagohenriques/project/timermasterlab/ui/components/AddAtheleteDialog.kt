@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -150,13 +149,7 @@ fun AddAthleteDialog(
                 OutlinedTextField(
                     value = distance,
                     onValueChange = { input ->
-                        if (input.matches(
-                                Regex(
-                                    """\n                            \d*\n                            (\\.\n                                \d*\n                            )?\n                        """.trimIndent()
-                                        .replace("\n", "").replace(" ", "")
-                                )
-                            )
-                        ) {
+                        if (input.all(Char::isDigit)) {
                             distance = input
                         }
                     },
