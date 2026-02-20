@@ -167,9 +167,7 @@ fun SessionResultsScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        if (selectedSession == null) {
-            EmptyState()
-        } else {
+        if (selectedSession != null) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = RoundedCornerShape(10.dp),
@@ -269,26 +267,6 @@ fun SessionResultsScreen(navController: NavHostController) {
     }
 }
 
-@Composable
-private fun EmptyState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "👆",
-            style = MaterialTheme.typography.displayMedium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Please select a session to see results",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
 
 @Composable
 private fun GroupHeader(title: String, count: Int) {
