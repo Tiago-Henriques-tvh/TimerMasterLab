@@ -52,7 +52,7 @@ class StartListViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(StartListUiState())
     val uiState: StateFlow<StartListUiState> = _uiState.asStateFlow()
-    private lateinit var currentMode: Type
+    private var currentMode: Type = Type.TIME_TRIAL
 
     fun loadStartListForMode(mode: String) {
         Log.d("StartListViewModel", "Loading start list for mode: $mode")

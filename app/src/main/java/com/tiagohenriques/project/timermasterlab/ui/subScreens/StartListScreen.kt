@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -51,7 +52,7 @@ import com.tiagohenriques.project.timermasterlab.ui.components.AddAthleteDialog
 import com.tiagohenriques.project.timermasterlab.ui.components.ReorderableLazyColumn
 
 @Composable
-fun StartListScreen(navController: NavHostController, mode: String = "Time Trial", screenWidth: Int) {
+fun StartListScreen(navController: NavHostController, mode: String = "Time Trial") {
     val viewModel: StartListViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -96,7 +97,6 @@ fun StartListScreen(navController: NavHostController, mode: String = "Time Trial
             save = { viewModel.commitStartList() },
             onMove = viewModel::moveDraftItem,
             mode = mode,
-            screenWidth = screenWidth
         )
     }
 }
@@ -112,7 +112,6 @@ private fun StartListContent(
     save: () -> Unit,
     onMove: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
     mode: String,
-    screenWidth: Int
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var itemToEdit by remember { mutableStateOf<DraftStartListItem?>(null) }
@@ -128,7 +127,8 @@ private fun StartListContent(
         ) {
             FilledTonalButton(
                 onClick = { showAddDialog = true },
-                modifier = Modifier.weight(0.63f * screenWidth)
+                // weight is a *relative* factor, it should not be multiplied by screen width
+                modifier = Modifier.weight(0.63f)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Athlete")
                 Spacer(Modifier.width(8.dp))
@@ -140,7 +140,7 @@ private fun StartListContent(
                     onExport()
                     save()
                 },
-                modifier = Modifier.weight(0.37f * screenWidth)
+                modifier = Modifier.weight(0.37f)
             ) {
                 Icon(Icons.Default.Download, contentDescription = "Export")
                 Spacer(Modifier.width(4.dp))
@@ -175,7 +175,9 @@ private fun StartListContent(
                             Log.d("StartList", "onMove called: from=$from to=$to")
                             onMove(from, to)
                         },
-                        key = { it.athlete.id }
+                        // Avoid duplicate-key crashes if athlete IDs are missing/duplicated.
+                        // startOrder changes on reorder, but id+startOrder stays unique within a list snapshot.
+                        key = { item -> "${item.athlete.id}_${item.startOrder}" }
                     ) { item, isDragging, dragModifier ->
                         AthleteCard(
                             item = item,
@@ -272,12 +274,18 @@ private fun AthleteCard(
     item: DraftStartListItem,
     onEdit: () -> Unit,
     onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
     isDragging: Boolean = false,
-    modifier: Modifier = Modifier
 ) {
     Card(
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) {
+                MaterialTheme.colorScheme.secondaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        ),
         modifier = modifier
     ) {
         Row(
@@ -338,6 +346,5 @@ fun StartListScreenPreview() {
         mode = "Time Trial",
         modifier = Modifier,
         onMove = { _, _ -> },
-        screenWidth = 600
     )
 }

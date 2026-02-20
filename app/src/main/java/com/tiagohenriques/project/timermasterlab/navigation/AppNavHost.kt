@@ -48,7 +48,7 @@ fun AppNavHost(
             arguments = listOf(navArgument("mode") { type = NavType.StringType })
         ) { backStackEntry ->
             val mode = backStackEntry.arguments?.getString("mode") ?: Type.TIME_TRIAL.toString()
-            StartListScreen(navController = navController, screenWidth = screenWidth, mode = mode)
+            StartListScreen(navController = navController, mode = mode)
         }
         // Begin Time Trial
         composable(TimerMasterLabAppScreens.BeginTimeTrial.name) {
