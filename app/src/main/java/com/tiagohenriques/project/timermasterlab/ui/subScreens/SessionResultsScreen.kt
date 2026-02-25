@@ -214,15 +214,15 @@ fun SessionResultsScreen(navController: NavHostController) {
                         }
                     },
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
                 ) {
                     Icon(
                         Icons.Filled.FileDownload,
                         contentDescription = "Export",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("Export", color = MaterialTheme.colorScheme.onPrimary)
+                    Text("Export", color = MaterialTheme.colorScheme.onTertiaryContainer)
                 }
             }
 
