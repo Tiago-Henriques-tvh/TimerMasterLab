@@ -17,9 +17,7 @@ import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.StartListEntryRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,34 +52,63 @@ class StartListViewModel(
     val uiState: StateFlow<StartListUiState> = _uiState.asStateFlow()
     private var currentMode: Type = Type.TIME_TRIAL
 
+    private fun startListFlowFor(mode: Type): Flow<List<StartListEntry>> {
+        return if (mode == Type.GROUP_RACE) {
+            startListEntryRepository.getGroupRaceStartList()
+        } else {
+            startListEntryRepository.getTimeTrialStartList()
+        }
+    }
+
+    fun importStartListFrom(fromMode: Type) {
+        if (fromMode == currentMode) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val athletesMap = athletesRepository.getAllAthletesOnce().associateBy { it.id }
+                val fromEntries = startListFlowFor(fromMode).first()
+
+                val draftItems = fromEntries.mapNotNull { entry ->
+                    val athlete = athletesMap[entry.athleteId] ?: return@mapNotNull null
+                    DraftStartListItem(
+                        athlete = athlete,
+                        startOrder = entry.startOrder,
+                        distanceMeters = entry.distanceMeters,
+                    )
+                }
+
+                _uiState.value = StartListUiState(
+                    draft = draftItems,
+                    hasUnsavedChanges = true,
+                    isLoading = false,
+                )
+            } catch (_: Throwable) {
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
     fun loadStartListForMode(mode: String) {
         Log.d("StartListViewModel", "Loading start list for mode: $mode")
         _uiState.update { it.copy(isLoading = true) }
 
         currentMode = Type.fromStringToType(mode.replace("_", " "))!!
         viewModelScope.launch {
-            val flow = if (Type.fromStringToType(mode) == Type.GROUP_RACE) {
-                startListEntryRepository.getGroupRaceStartList()
-            } else {
-                startListEntryRepository.getTimeTrialStartList()
-            }
+            val flow = startListFlowFor(currentMode)
 
             flow.take(1).collect { entries ->
                 Log.d("StartListViewModel", "Loaded ${entries.size} entries: $entries")
-                val draftItems = coroutineScope {
-                    entries.map { entry ->
-                        async {
-                            val athlete = athletesRepository
-                                .getAthleteById(entry.athleteId)
-                                .first()
 
-                            DraftStartListItem(
-                                athlete = athlete,
-                                startOrder = entry.startOrder,
-                                distanceMeters = entry.distanceMeters,
-                            )
-                        }
-                    }.awaitAll()
+                val athletesMap = athletesRepository.getAllAthletesOnce().associateBy { it.id }
+
+                val draftItems = entries.mapNotNull { entry ->
+                    val athlete = athletesMap[entry.athleteId] ?: return@mapNotNull null
+                    DraftStartListItem(
+                        athlete = athlete,
+                        startOrder = entry.startOrder,
+                        distanceMeters = entry.distanceMeters,
+                    )
                 }
 
                 _uiState.value = StartListUiState(draft = draftItems)

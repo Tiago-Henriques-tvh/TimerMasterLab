@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,54 +45,27 @@ import com.tiagohenriques.project.timermasterlab.data.models.Session
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun SessionResultsScreen(navController: NavHostController) {
     val viewModel: SessionResultViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val sessions by viewModel.getAllTrialSessions().collectAsState(initial = emptyList())
-    var selectedSession by remember { mutableStateOf<Session?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
-    val sessionResults = selectedSession?.let { session ->
-        viewModel.getSessionResultsBySessionId(session.sessionId)
-            .collectAsState(initial = emptyList())
-    }?.value ?: emptyList()
-
     val groupOptions = listOf("None", "Age", "Gender", "Category", "Distance")
-    var selectedGroup by remember { mutableStateOf("None") }
     var groupExpanded by remember { mutableStateOf(false) }
 
-    val athleteIds = sessionResults.map { it.athleteId }.distinct()
-    val athleteMap: Map<Long, Athlete?> = athleteIds.associateWith { id ->
-        try {
-            runBlocking { viewModel.getAthleteById(id).first() }
-        } catch (_: Throwable) {
-            null
-        }
-    }
+    val context = LocalContext.current
 
-    val enriched: List<Pair<SessionResult, Athlete?>> = sessionResults.map { result ->
-        result to athleteMap[result.athleteId]
-    }
-
-    val resultsSorted = enriched.sortedBy { (result, _) -> result.duration ?: Long.MAX_VALUE }
-
-    val finalResults: List<Pair<SessionResult, Athlete?>> = if (selectedGroup == "None") {
-        resultsSorted
-    } else {
-        val grouped = resultsSorted.groupBy { (result, athlete) ->
-            when (selectedGroup) {
-                "Age" -> athlete?.age?.toString() ?: "Unknown"
-                "Gender" -> athlete?.gender ?: "Unknown"
-                "Category" -> athlete?.let { Category.fromCode(it.category) } ?: "Unknown"
-                "Distance" -> result.distance.toString()
-                else -> "Unknown"
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is SessionResultViewModel.UiEvent.Message -> {
+                    Toast.makeText(context, event.text, Toast.LENGTH_LONG).show()
+                }
             }
         }
-
-        grouped.toSortedMap().flatMap { it.value }
     }
 
     Column(
@@ -121,7 +95,7 @@ fun SessionResultsScreen(navController: NavHostController) {
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     ) {
                         Text(
-                            text = "${finalResults.size}",
+                            text = "${uiState.totalCount}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
@@ -144,7 +118,7 @@ fun SessionResultsScreen(navController: NavHostController) {
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        selectedSession?.let { s ->
+                        uiState.selectedSession?.let { s ->
                             Utils.formatSessionDate(s.date).takeIf { it.isNotBlank() }
                                 ?: "Session #${s.sessionId}"
                         } ?: "Select a session",
@@ -153,11 +127,11 @@ fun SessionResultsScreen(navController: NavHostController) {
                 }
 
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    sessions.forEach { session ->
+                    uiState.sessions.forEach { session ->
                         val label = Utils.formatSessionDate(session.date).takeIf { it.isNotBlank() }
                             ?: "Session #${session.sessionId}"
                         DropdownMenuItem(text = { Text(label) }, onClick = {
-                            selectedSession = session
+                            viewModel.setSelectedSession(session.sessionId)
                             expanded = false
                         })
                     }
@@ -167,99 +141,119 @@ fun SessionResultsScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        if (selectedSession != null) {
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier
-                        .weight(1f)
-                ) {
-                    Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "Group:",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+        if (uiState.selectedSession == null) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "Select a session to view results.",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            return@Column
+        }
+
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.weight(1f)
+            ) {
+                Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Group:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(onClick = { groupExpanded = true }) {
+                        Icon(
+                            Icons.Filled.FilterList,
+                            contentDescription = "Group",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        OutlinedButton(onClick = { groupExpanded = true }) {
-                            Icon(
-                                Icons.Filled.FilterList,
-                                contentDescription = "Group",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(selectedGroup)
-                        }
-                        DropdownMenu(expanded = groupExpanded, onDismissRequest = { groupExpanded = false }) {
-                            groupOptions.forEach { g ->
-                                DropdownMenuItem(text = { Text(g) }, onClick = {
-                                    selectedGroup = g
-                                    groupExpanded = false
-                                })
-                            }
+                        Spacer(Modifier.width(6.dp))
+                        Text(uiState.groupBy)
+                    }
+                    DropdownMenu(expanded = groupExpanded, onDismissRequest = { groupExpanded = false }) {
+                        groupOptions.forEach { g ->
+                            DropdownMenuItem(text = { Text(g) }, onClick = {
+                                viewModel.setGroupBy(g)
+                                groupExpanded = false
+                            })
                         }
                     }
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                val context = LocalContext.current
-                FilledTonalButton(
-                    onClick = {
-                        try {
-                            viewModel.exportResultsToPdf(context, finalResults, selectedGroup)
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Export failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                        }
-                    },
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-                ) {
-                    Icon(
-                        Icons.Filled.FileDownload,
-                        contentDescription = "Export",
-                        tint = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text("Export", color = MaterialTheme.colorScheme.onTertiaryContainer)
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize()
+            FilledTonalButton(
+                onClick = {
+                    viewModel.exportCurrentResultsToPdf(context)
+                },
+                enabled = !uiState.isExporting && uiState.totalCount > 0,
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.filledTonalButtonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                if (selectedGroup == "None") {
-                    item { ResultTableHeader() }
-                    itemsIndexed(finalResults) { index, pair ->
-                        val (result, athlete) = pair
-                        ResultTableRow(result, athlete, isAlternate = index % 2 == 1)
+                Icon(
+                    Icons.Filled.FileDownload,
+                    contentDescription = "Export",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(if (uiState.isExporting) "Exporting…" else "Export", color = MaterialTheme.colorScheme.onPrimary)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (uiState.totalCount == 0) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = "No completed results yet.",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            return@Column
+        }
+
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (uiState.groupBy == "None") {
+                item { ResultTableHeader() }
+                val items = uiState.sections.firstOrNull()?.items.orEmpty()
+                itemsIndexed(
+                    items,
+                    key = { _, row -> "${row.result.sessionId}-${row.result.athleteId}" }
+                ) { index, row ->
+                    ResultTableRow(row.result, row.athlete, isAlternate = index % 2 == 1)
+                }
+            } else {
+                uiState.sections.forEach { section ->
+                    item(key = "header-${section.title}") {
+                        GroupHeader(title = section.title, count = section.items.size)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        ResultTableHeader()
                     }
-                } else {
-                    val grouped = finalResults.groupBy { (result, athlete) ->
-                        when (selectedGroup) {
-                            "Age" -> athlete?.age?.toString() ?: "Unknown"
-                            "Gender" -> athlete?.gender ?: "Unknown"
-                            "Category" -> athlete?.let { Category.fromCode(it.category) } ?: "Unknown"
-                            "Distance" -> result.distance.toString()
-                            else -> "Unknown"
-                        }
-                    }.toSortedMap()
 
-                    grouped.forEach { (groupKey, itemsInGroup) ->
-                        item {
-                            GroupHeader(title = groupKey, count = itemsInGroup.size)
-                            Spacer(modifier = Modifier.height(6.dp))
-                            ResultTableHeader()
-                        }
-
-                        itemsIndexed(itemsInGroup) { localIndex, pair ->
-                            val (result, athlete) = pair
-                            ResultTableRow(result, athlete, isAlternate = localIndex % 2 == 1)
-                        }
+                    itemsIndexed(
+                        section.items,
+                        key = { _, row -> "${row.result.sessionId}-${row.result.athleteId}" }
+                    ) { localIndex, row ->
+                        ResultTableRow(row.result, row.athlete, isAlternate = localIndex % 2 == 1)
                     }
                 }
             }
