@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -254,12 +255,12 @@ fun AthleteRow(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(32.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = CircleShape
@@ -268,12 +269,12 @@ fun AthleteRow(
             ) {
                 Text(
                     text = item.startOrder.toString(),
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(8.dp))
 
             Text(
                 text = item.athlete.name,
@@ -284,60 +285,54 @@ fun AthleteRow(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(8.dp))
 
             Text(
                 text = formatDuration(item.result?.duration ?: 0L),
-                modifier = Modifier.width(88.dp),
-                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.width(72.dp),
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.End
             )
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(8.dp))
 
-            when {
-                isFinished -> {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = Color(0xFF2E7D32),
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-
-                isRunning -> {
-                    Button(
-                        onClick = onStop,
-                        modifier = Modifier
-                            .height(48.dp)
-                            .width(96.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFD32F2F)
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            "STOP",
-                            fontWeight = FontWeight.Bold
+            Box(modifier = Modifier.width(80.dp), contentAlignment = Alignment.Center) {
+                when {
+                    isFinished -> {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = Color(0xFF2E7D32),
+                            modifier = Modifier.size(28.dp)
                         )
                     }
-                }
 
-                else -> {
-                    Button(
-                        onClick = onStart,
-                        modifier = Modifier
-                            .height(48.dp)
-                            .width(96.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2E7D32)
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            "START",
-                            fontWeight = FontWeight.Bold
-                        )
+                    isRunning -> {
+                        Button(
+                            onClick = onStop,
+                            modifier = Modifier
+                                .height(38.dp)
+                                .fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("STOP", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    else -> {
+                        Button(
+                            onClick = onStart,
+                            modifier = Modifier
+                                .height(38.dp)
+                                .fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("START", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
