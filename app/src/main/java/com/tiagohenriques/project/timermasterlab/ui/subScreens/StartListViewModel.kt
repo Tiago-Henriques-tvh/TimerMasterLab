@@ -76,6 +76,14 @@ class StartListViewModel(
                         startOrder = entry.startOrder,
                         distanceMeters = entry.distanceMeters,
                     )
+                }.let { items ->
+                    if (currentMode == Type.TIME_TRIAL) {
+                        items.mapIndexed { index, item ->
+                            item.copy(startOrder = index + 1)
+                        }
+                    } else {
+                        items
+                    }
                 }
 
                 _uiState.value = StartListUiState(

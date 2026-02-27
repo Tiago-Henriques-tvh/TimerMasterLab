@@ -28,9 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.tiagohenriques.project.timermasterlab.R
 import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
 import com.tiagohenriques.project.timermasterlab.ui.components.HeaderCard
@@ -97,7 +99,7 @@ fun TimeTrial(navController: NavHostController) {
     ) {
         HeaderCard(
             title = "Time Trial",
-            description = "- Individual timed runs.\n- Create the start list and start athletes one by one, times are recorded as they finish.\n- You can export the start list and the results with filter if you want.",
+            painter = painterResource(R.drawable.time_trial_img),
             modifier = Modifier.fillMaxWidth()
         )
 

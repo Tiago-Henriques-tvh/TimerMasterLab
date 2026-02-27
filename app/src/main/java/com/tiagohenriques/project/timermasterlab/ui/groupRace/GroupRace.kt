@@ -27,10 +27,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.tiagohenriques.project.timermasterlab.R
 import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
 import com.tiagohenriques.project.timermasterlab.ui.components.HeaderCard
@@ -97,7 +99,7 @@ fun GroupRace(navController: NavHostController) {
     ) {
         HeaderCard(
             title = "Group Race",
-            description = "- Side-By-Side timed runs.\n- Create the start list and start athletes in groups, times are recorded as they finish.\n- You can export the start list and the results with filter if you want.",
+            painter = painterResource(R.drawable.group_race_img),
             modifier = Modifier.fillMaxWidth()
         )
 

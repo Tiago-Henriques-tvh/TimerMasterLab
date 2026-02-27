@@ -17,15 +17,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
-import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.GetApp
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -60,8 +59,6 @@ import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 import com.tiagohenriques.project.timermasterlab.ui.components.AddAthleteDialog
-import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalWindowSize
-import com.tiagohenriques.project.timermasterlab.ui.responsive.WindowSize
 import com.tiagohenriques.project.timermasterlab.ui.components.ReorderableLazyColumn
 
 private data class StartListToolbarActions(
@@ -90,7 +87,7 @@ fun StartListScreen(
 
     val currentType = Type.fromStringToType(mode)
     val otherType = if (currentType == Type.GROUP_RACE) Type.TIME_TRIAL else Type.GROUP_RACE
-    val importLabel = if (otherType == Type.TIME_TRIAL) "Import from Time Trial" else "Import from Group Race"
+    val importLabel = if (otherType == Type.TIME_TRIAL) "Time Trial" else "Group Race"
 
     val toolbarActions = StartListToolbarActions(
         onSave = {
@@ -188,7 +185,6 @@ private fun StartListContent(
             .padding(top = 12.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Header card
         Card(
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -262,7 +258,7 @@ private fun StartListContent(
                             modifier = Modifier.size(actionIconSize),
                         )
                         Spacer(Modifier.size(8.dp))
-                        Text("Save")
+                        Text("Save/Back")
                     }
 
                     FilledTonalButton(
@@ -272,14 +268,19 @@ private fun StartListContent(
                             .height(actionHeight),
                         enabled = !uiState.isLoading,
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            // neutral / less prominent than Add
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
                         shape = actionShape,
                     ) {
+                        Icon(
+                            Icons.Default.GetApp,
+                            contentDescription = null,
+                            modifier = Modifier.size(actionIconSize),
+                        )
+                        Spacer(Modifier.size(8.dp))
                         Text(toolbarActions.importLabel, maxLines = 1)
                     }
                 }
@@ -326,12 +327,12 @@ private fun StartListContent(
                         shape = actionShape,
                     ) {
                         Icon(
-                            Icons.Default.Download,
+                            Icons.Default.PictureAsPdf,
                             contentDescription = null,
                             modifier = Modifier.size(actionIconSize),
                         )
                         Spacer(Modifier.size(8.dp))
-                        Text("Export")
+                        Text("Export PDF")
                     }
                 }
 
