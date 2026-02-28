@@ -7,26 +7,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -72,82 +66,60 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
         containerColor = MaterialTheme.colorScheme.background
     ) { _ ->
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Card(
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            ) {
-                Column(
+            Row(modifier = Modifier.fillMaxWidth()) {
+                // Timer
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surfaceDim)
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Timer,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = "Time Trial",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-
-                        FilledIconButton(
-                            onClick = {
-                                if (!uiState.hasEnded) showAbortConfirm = true
-                                else navController.navigateUp()
-                            },
-                            modifier = Modifier.size(48.dp),
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = if (!uiState.hasEnded)
-                                    MaterialTheme.colorScheme.errorContainer
-                                else
-                                    MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = if (uiState.hasEnded) Icons.Default.Check else Icons.Default.Close,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(vertical = 14.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Timer,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                        Spacer(Modifier.width(8.dp))
                         Text(
                             text = formatDuration(sessionTime),
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = MaterialTheme.typography.titleLarge.fontSize
                         )
                     }
                 }
+
+                // Abort/Save
+                FilledIconButton(
+                    onClick = {
+                        if (!uiState.hasEnded) showAbortConfirm = true
+                        else navController.navigateUp()
+                    },
+                    modifier = Modifier.size(38.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = if (!uiState.hasEnded)
+                            MaterialTheme.colorScheme.errorContainer
+                        else
+                            MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(
+                        imageVector = if (uiState.hasEnded) Icons.Default.Check else Icons.Default.Close,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
             }
+
 
             if (showAbortConfirm) {
                 AlertDialog(
@@ -172,7 +144,7 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
             }
 
             BeginTimeTrialContent(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier,
                 uiState = uiState,
                 onStart = viewModel::startAthlete,
                 onStop = viewModel::stopAthlete
@@ -197,8 +169,8 @@ private fun BeginTimeTrialContent(
     }
 
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        modifier = modifier.padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (toStart.isNotEmpty()) {
             SectionHeader(title = "To start", count = toStart.size)
@@ -206,15 +178,13 @@ private fun BeginTimeTrialContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(260.dp),
+                    .weight(0.6f),
                 shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(12.dp),
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(toStart, key = { it.athlete.id }) { item ->
@@ -228,10 +198,10 @@ private fun BeginTimeTrialContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(0.4f),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
                 LazyColumn(
                     modifier = Modifier
@@ -256,7 +226,7 @@ private fun BeginTimeTrialContent(
                     .weight(1f),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
                 LazyColumn(
                     modifier = Modifier
@@ -325,21 +295,31 @@ fun AthleteRow(
 
 @Preview(showBackground = true)
 @Composable
-fun AthleteRowPreview() {
-    AthleteRow(
-        item = DraftTimeTrialItem(
-            sessionId = 0L,
-            athlete = Athlete(
-                id = 0L,
-                name = "John Doe",
-                age = 20,
-                gender = "M",
-                category = 1,
-            ),
+fun BeginTimeTrialScreenPreview() {
+    val mockAthlete = Athlete(
+        id = 1, name = "John Doe",
+        age = 23,
+        gender = "M",
+        category = 3
+    )
+    val mockItems = listOf(
+        DraftTimeTrialItem(
+            athlete = mockAthlete, startOrder = 1,
+            sessionId = 1,
             result = null,
-            startOrder = 1,
-            distance = 1000F
+            distance = 0.0F
         ),
-        onStart = {}
-    ) {}
+    )
+    val mockUiState = TimeTrialUiState(
+        draft = mockItems,
+        hasEnded = false
+    )
+
+    MaterialTheme {
+        BeginTimeTrialContent(
+            uiState = mockUiState,
+            onStart = {},
+            onStop = {}
+        )
+    }
 }

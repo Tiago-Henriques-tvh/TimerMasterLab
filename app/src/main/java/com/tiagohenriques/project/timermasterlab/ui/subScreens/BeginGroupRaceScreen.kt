@@ -7,15 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,8 +21,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -73,7 +68,7 @@ fun BeginGroupRaceScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Card(
                 shape = RoundedCornerShape(18.dp),
@@ -115,9 +110,9 @@ fun BeginGroupRaceScreen(navController: NavHostController) {
                             modifier = Modifier.size(48.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
                                 containerColor = if (!uiState.hasEnded)
-                                    MaterialTheme.colorScheme.errorContainer
+                                    MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.99f)
                                 else
-                                    MaterialTheme.colorScheme.primary
+                                    MaterialTheme.colorScheme.primary,
                             )
                         ) {
                             Icon(
@@ -132,17 +127,11 @@ fun BeginGroupRaceScreen(navController: NavHostController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(vertical = 14.dp),
+                            .background(MaterialTheme.colorScheme.surfaceDim)
+                            .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Timer,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(Modifier.width(8.dp))
                             Text(
                                 text = formatDuration(sessionTime),
                                 style = MaterialTheme.typography.displaySmall,
@@ -227,7 +216,7 @@ private fun BeginGroupRaceContent(
                         ) {
                             Text(
                                 text = "Group $groupOrder",
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.weight(1f)
                             )

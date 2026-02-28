@@ -50,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -175,14 +176,12 @@ private fun StartListContent(
     var itemToEdit by remember { mutableStateOf<DraftStartListItem?>(null) }
 
     val currentType = Type.fromStringToType(mode)
-    val headerTitle = if (currentType == Type.GROUP_RACE) "Group Race Start List" else "Time Trial Start List"
+    val headerTitle = if (currentType == Type.GROUP_RACE) "Group Race" else "Time Trial"
     val headerIcon = if (currentType == Type.GROUP_RACE) Icons.Default.Groups else Icons.Default.Flag
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-            .padding(top = 12.dp, bottom = 16.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Card(
@@ -245,8 +244,8 @@ private fun StartListContent(
                             .height(actionHeight),
                         enabled = !uiState.isLoading,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = Color(0xFF008000),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
                             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
@@ -296,8 +295,8 @@ private fun StartListContent(
                             .height(actionHeight),
                         enabled = !uiState.isLoading,
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         ),
@@ -349,7 +348,8 @@ private fun StartListContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                .padding(16.dp),
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
