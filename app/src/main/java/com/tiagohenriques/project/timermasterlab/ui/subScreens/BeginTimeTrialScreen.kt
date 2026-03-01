@@ -1,8 +1,6 @@
 package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,8 +38,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,36 +64,36 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
         containerColor = MaterialTheme.colorScheme.background
     ) { _ ->
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 // Timer
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.surfaceDim)
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center,
+                Row(
+                    modifier = Modifier.weight(0.6f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Timer,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = formatDuration(sessionTime),
-                            style = MaterialTheme.typography.displaySmall,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = MaterialTheme.typography.titleLarge.fontSize
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Timer,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = formatDuration(sessionTime),
+                        style = MaterialTheme.typography.displayLarge,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize
+                    )
                 }
 
                 // Abort/Save
@@ -104,7 +102,8 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
                         if (!uiState.hasEnded) showAbortConfirm = true
                         else navController.navigateUp()
                     },
-                    modifier = Modifier.size(38.dp),
+                    modifier = Modifier
+                        .size(42.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = if (!uiState.hasEnded)
                             MaterialTheme.colorScheme.errorContainer
@@ -144,7 +143,7 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
             }
 
             BeginTimeTrialContent(
-                modifier = Modifier,
+                modifier = Modifier.weight(1f),
                 uiState = uiState,
                 onStart = viewModel::startAthlete,
                 onStop = viewModel::stopAthlete
@@ -169,7 +168,9 @@ private fun BeginTimeTrialContent(
     }
 
     Column(
-        modifier = modifier.padding(8.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (toStart.isNotEmpty()) {
@@ -178,7 +179,7 @@ private fun BeginTimeTrialContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.6f),
+                    .weight(0.5f),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
@@ -198,10 +199,9 @@ private fun BeginTimeTrialContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.4f),
+                    .weight(0.5f),
                 shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 LazyColumn(
                     modifier = Modifier
@@ -225,8 +225,7 @@ private fun BeginTimeTrialContent(
                     .fillMaxWidth()
                     .weight(1f),
                 shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 LazyColumn(
                     modifier = Modifier
@@ -266,8 +265,8 @@ fun AthleteRow(
                 Button(
                     onClick = onStop,
                     modifier = Modifier
-                        .height(38.dp)
-                        .fillMaxWidth(),
+                        .fillMaxSize()
+                        .padding(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(0.dp)
@@ -280,8 +279,8 @@ fun AthleteRow(
                 Button(
                     onClick = onStart,
                     modifier = Modifier
-                        .height(38.dp)
-                        .fillMaxWidth(),
+                        .fillMaxSize()
+                        .padding(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(0.dp)
@@ -322,4 +321,10 @@ fun BeginTimeTrialScreenPreview() {
             onStop = {}
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BeginTimeTrialTopPreview() {
+    BeginTimeTrialScreen(navController = NavHostController(LocalContext.current))
 }

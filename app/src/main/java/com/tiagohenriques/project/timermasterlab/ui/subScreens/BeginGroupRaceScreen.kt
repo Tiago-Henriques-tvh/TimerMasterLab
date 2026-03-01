@@ -1,8 +1,6 @@
 package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -42,7 +39,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,81 +62,57 @@ fun BeginGroupRaceScreen(navController: NavHostController) {
     ) { _ ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Card(
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                // Timer
+                Row(
+                    modifier = Modifier.weight(0.6f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Groups,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                text = "Group Race",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
+                    Icon(
+                        imageVector = Icons.Default.Timer,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = formatDuration(sessionTime),
+                        style = MaterialTheme.typography.displayLarge,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize
+                    )
+                }
 
-                        FilledIconButton(
-                            onClick = {
-                                if (!uiState.hasEnded) showAbortConfirm = true
-                                else navController.navigateUp()
-                            },
-                            modifier = Modifier.size(48.dp),
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = if (!uiState.hasEnded)
-                                    MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.99f)
-                                else
-                                    MaterialTheme.colorScheme.primary,
-                            )
-                        ) {
-                            Icon(
-                                imageVector = if (uiState.hasEnded) Icons.Default.Check else Icons.Default.Close,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(MaterialTheme.colorScheme.surfaceDim)
-                            .padding(vertical = 12.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = formatDuration(sessionTime),
-                                style = MaterialTheme.typography.displaySmall,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                    }
+                // Abort/Save
+                FilledIconButton(
+                    onClick = {
+                        if (!uiState.hasEnded) showAbortConfirm = true
+                        else navController.navigateUp()
+                    },
+                    modifier = Modifier
+                        .size(42.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = if (!uiState.hasEnded)
+                            MaterialTheme.colorScheme.errorContainer
+                        else
+                            MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(
+                        imageVector = if (uiState.hasEnded) Icons.Default.Check else Icons.Default.Close,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
                 }
             }
 
@@ -189,8 +161,9 @@ private fun BeginGroupRaceContent(
 
     LazyColumn(
         modifier = modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .fillMaxSize()
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         grouped.forEach { (groupOrder, athletes) ->
             item(key = "group_$groupOrder") {
@@ -292,8 +265,8 @@ fun AthleteRow(
                 Button(
                     onClick = onStop,
                     modifier = Modifier
-                        .height(36.dp)
-                        .fillMaxWidth(),
+                        .fillMaxSize()
+                        .padding(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFD32F2F)
                     ),

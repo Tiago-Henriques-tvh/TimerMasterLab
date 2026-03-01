@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -40,8 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
-import com.tiagohenriques.project.timermasterlab.data.models.Category
-import com.tiagohenriques.project.timermasterlab.data.models.Session
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils
@@ -164,15 +163,9 @@ fun SessionResultsScreen(navController: NavHostController) {
                 modifier = Modifier.weight(1f)
             ) {
                 Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Group:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     OutlinedButton(onClick = { groupExpanded = true }) {
                         Icon(
-                            Icons.Filled.FilterList,
+                            Icons.Filled.FilterAlt,
                             contentDescription = "Group",
                             tint = MaterialTheme.colorScheme.onSurface
                         )

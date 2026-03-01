@@ -12,7 +12,7 @@
     <string name="empty" />
     <string name="start_list">Start List</string>
     <string name="session_results">Session Results</string>
-    <string name="begin_time_trial">Begin Time Trial</string>
+    <string name="begin_time_trial">Time Trial</string>
     <string name="open_label">Open</string>
-    <string name="begin_group_race">Begin Group Race</string>
+    <string name="begin_group_race">Group Race</string>
 </resources>
