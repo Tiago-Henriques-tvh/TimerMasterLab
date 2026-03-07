@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -44,20 +45,19 @@ fun AthleteResultRow(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(65.dp),
+            .height(60.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Spacer(Modifier.width(8.dp))
-
             Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(24.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = CircleShape,
@@ -71,7 +71,7 @@ fun AthleteResultRow(
                 )
             }
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(4.dp))
 
             Text(
                 text = athleteName,
@@ -82,7 +82,7 @@ fun AthleteResultRow(
                 overflow = TextOverflow.Ellipsis,
             )
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(4.dp))
 
             Text(
                 text = durationText,
@@ -91,7 +91,7 @@ fun AthleteResultRow(
                 textAlign = TextAlign.End,
             )
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(4.dp))
 
             Box(
                 modifier = Modifier.width(80.dp),
@@ -99,8 +99,6 @@ fun AthleteResultRow(
             ) {
                 trailing()
             }
-
-            Spacer(Modifier.width(8.dp))
         }
     }
 }
