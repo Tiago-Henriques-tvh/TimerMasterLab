@@ -1,6 +1,9 @@
 package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.GetApp
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -59,14 +63,18 @@ import androidx.navigation.NavHostController
 import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalUiMetrics
 import com.tiagohenriques.project.timermasterlab.ui.components.AddAthleteDialog
 import com.tiagohenriques.project.timermasterlab.ui.components.ReorderableLazyColumn
+import com.tiagohenriques.project.timermasterlab.ui.utils.shareStartListFile
 
 private data class StartListToolbarActions(
     val onSave: () -> Unit,
     val onAdd: () -> Unit,
     val onExport: () -> Unit,
     val onImportFromOtherMode: () -> Unit,
+    val onImportJson: () -> Unit,
+    val onShareJson: () -> Unit,
     val importLabel: String,
 )
 
@@ -81,9 +89,28 @@ fun StartListScreen(
 
     var showAddDialog by remember { mutableStateOf(false) }
     var showImportConfirm by remember { mutableStateOf(false) }
+    var showJsonImportConfirm by remember { mutableStateOf(false) }
+    val importJsonLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            viewModel.importStartListFromJson(context, uri)
+        }
+    }
 
     LaunchedEffect(mode) {
         viewModel.loadStartListForMode(mode)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is StartListEvent.ShareFile -> shareStartListFile(context, event.file)
+                is StartListEvent.Message -> {
+                    Toast.makeText(context, event.text, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     val currentType = Type.fromStringToType(mode)
@@ -101,6 +128,8 @@ fun StartListScreen(
             viewModel.commitStartList()
         },
         onImportFromOtherMode = { showImportConfirm = true },
+        onImportJson = { showJsonImportConfirm = true },
+        onShareJson = { viewModel.shareStartListJson(context) },
         importLabel = importLabel,
     )
 
@@ -156,6 +185,33 @@ fun StartListScreen(
                     },
                 )
             }
+
+            if (showJsonImportConfirm) {
+                AlertDialog(
+                    onDismissRequest = { showJsonImportConfirm = false },
+                    title = { Text("Import JSON start list") },
+                    text = {
+                        Text(
+                            "This replaces the current start list with athletes from a JSON file. Save afterwards to keep it.",
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showJsonImportConfirm = false
+                                importJsonLauncher.launch(arrayOf("application/json", "text/*", "*/*"))
+                            },
+                        ) {
+                            Text("Choose file")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showJsonImportConfirm = false }) {
+                            Text("Cancel")
+                        }
+                    },
+                )
+            }
         }
     }
 }
@@ -174,6 +230,7 @@ private fun StartListContent(
     onMoveDraftItem: (fromIndex: Int, toIndex: Int) -> Unit = { _, _ -> },
 ) {
     var itemToEdit by remember { mutableStateOf<DraftStartListItem?>(null) }
+    val metrics = LocalUiMetrics.current
 
     val currentType = Type.fromStringToType(mode)
     val headerTitle = if (currentType == Type.GROUP_RACE) "Group Race" else "Time Trial"
@@ -212,7 +269,7 @@ private fun StartListContent(
                         Spacer(Modifier.width(8.dp))
                         Text(
                             text = headerTitle,
-                            style = MaterialTheme.typography.titleLarge,
+                            style = metrics.title,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
@@ -229,9 +286,9 @@ private fun StartListContent(
                     )
                 }
 
-                val actionShape = RoundedCornerShape(12.dp)
-                val actionHeight = 44.dp
-                val actionIconSize = 18.dp
+                val actionShape = RoundedCornerShape(metrics.cardRadius)
+                val actionHeight = metrics.buttonHeight
+                val actionIconSize = metrics.icon * 0.8f
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -332,6 +389,45 @@ private fun StartListContent(
                         )
                         Spacer(Modifier.size(8.dp))
                         Text("Export PDF")
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    FilledTonalButton(
+                        onClick = toolbarActions.onImportJson,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(actionHeight),
+                        enabled = !uiState.isLoading,
+                        shape = actionShape,
+                    ) {
+                        Icon(
+                            Icons.Default.GetApp,
+                            contentDescription = null,
+                            modifier = Modifier.size(actionIconSize),
+                        )
+                        Spacer(Modifier.size(8.dp))
+                        Text("Import JSON", maxLines = 1)
+                    }
+
+                    FilledTonalButton(
+                        onClick = toolbarActions.onShareJson,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(actionHeight),
+                        enabled = !uiState.isLoading && uiState.draft.isNotEmpty(),
+                        shape = actionShape,
+                    ) {
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = null,
+                            modifier = Modifier.size(actionIconSize),
+                        )
+                        Spacer(Modifier.size(8.dp))
+                        Text("Share JSON", maxLines = 1)
                     }
                 }
 
@@ -543,6 +639,8 @@ private fun StartListScreenPreview() {
             onAdd = {},
             onExport = {},
             onImportFromOtherMode = {},
+            onImportJson = {},
+            onShareJson = {},
             importLabel = "Import from Other Mode",
         ),
         showAddDialog = false,

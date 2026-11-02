@@ -43,6 +43,9 @@ class BeginGroupRaceViewModel(
     private val _sessionTime = MutableStateFlow(0L)
     val sessionTime: StateFlow<Long> = _sessionTime.asStateFlow()
 
+    private val _nowMillis = MutableStateFlow(System.currentTimeMillis())
+    val nowMillis: StateFlow<Long> = _nowMillis.asStateFlow()
+
     private var globalTimerJob: Job? = null
     private var sessionStartTime: Long = 0L
 
@@ -76,7 +79,9 @@ class BeginGroupRaceViewModel(
             globalTimerJob = viewModelScope.launch {
                 while (true) {
                     delay(100L)
-                    _sessionTime.value = System.currentTimeMillis() - sessionStartTime
+                    val tick = System.currentTimeMillis()
+                    _nowMillis.value = tick
+                    _sessionTime.value = tick - sessionStartTime
                 }
             }
         }

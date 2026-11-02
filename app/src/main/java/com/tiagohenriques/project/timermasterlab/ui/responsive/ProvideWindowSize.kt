@@ -7,7 +7,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 fun ProvideWindowSize(content: @Composable () -> Unit) {
     val windowSize = rememberWindowSize()
     CompositionLocalProvider(LocalWindowSize provides windowSize) {
-        content()
+        val metrics = rememberUiMetrics()
+        CompositionLocalProvider(LocalUiMetrics provides metrics) {
+            content()
+        }
     }
 }
 

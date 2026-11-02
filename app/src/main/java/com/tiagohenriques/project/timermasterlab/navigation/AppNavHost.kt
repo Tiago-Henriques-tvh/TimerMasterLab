@@ -23,6 +23,8 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     changeTheme: () -> Unit,
     isDarkTheme: Boolean,
+    fileLoggingEnabled: Boolean,
+    onFileLoggingChange: (Boolean) -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -67,6 +69,8 @@ fun AppNavHost(
             SettingsScreen(
                 changeTheme = { isBlackTheme -> changeTheme() },
                 isBlackTheme = isDarkTheme,
+                fileLoggingEnabled = fileLoggingEnabled,
+                onFileLoggingChange = onFileLoggingChange,
             )
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material3.Icon
@@ -30,6 +31,8 @@ import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 fun SettingsScreen(
     changeTheme: (Boolean) -> Unit,
     isBlackTheme: Boolean = false,
+    fileLoggingEnabled: Boolean = true,
+    onFileLoggingChange: (Boolean) -> Unit = {},
 ) {
     val localContext = LocalContext.current
 
@@ -44,6 +47,16 @@ fun SettingsScreen(
                 icon = Icons.Outlined.DarkMode,
                 isChecked = isBlackTheme,
                 onToggle = changeTheme,
+            )
+        }
+        item { SettingsSectionHeader(title = "Diagnostics") }
+        item {
+            SwitchSettingItem(
+                title = "File logging",
+                description = "Record crash-safe logs from app startup and keep them after an unexpected close.",
+                icon = Icons.Outlined.Article,
+                isChecked = fileLoggingEnabled,
+                onToggle = onFileLoggingChange,
             )
         }
         item { SettingsSectionHeader(title = "Legal") }

@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalUiMetrics
 import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalWindowSize
 import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 
@@ -113,10 +114,7 @@ private fun HomeNavigationButton(
     startColor: Color,
     endColor: Color,
 ) {
-    val screenWidth = LocalWindowSize.current.widthDp
-    val horizontalPadding = (screenWidth * 0.08f).dp
-    val iconSize = (screenWidth * 0.065f).dp
-    val textSize = (screenWidth * 0.050f).sp
+    val metrics = LocalUiMetrics.current
 
     val gradient = Brush.linearGradient(
         colors = listOf(startColor, endColor)
@@ -124,9 +122,8 @@ private fun HomeNavigationButton(
 
     Card(
         onClick = onClick,
-        modifier = modifier
-            .height(120.dp),
-        shape = RoundedCornerShape(24.dp),
+        modifier = modifier.height(metrics.homeCardHeight),
+        shape = RoundedCornerShape(metrics.cardRadius),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
@@ -144,13 +141,13 @@ private fun HomeNavigationButton(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontalPadding),
+                    .padding(horizontal = metrics.screenPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(metrics.icon + 16.dp)
                         .clip(CircleShape)
                         .background(Color.White.copy(alpha = 0.25f)),
                     contentAlignment = Alignment.Center
@@ -158,23 +155,22 @@ private fun HomeNavigationButton(
                     Icon(
                         imageVector = icon,
                         contentDescription = "$label icon",
-                        modifier = Modifier.size(iconSize),
+                        modifier = Modifier.size(metrics.icon),
                         tint = Color.White
                     )
                 }
 
-                Spacer(modifier = Modifier.width(20.dp))
+                Spacer(modifier = Modifier.width(metrics.gap))
 
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = textSize,
-                        fontWeight = FontWeight.Black,
+                    maxLines = 1,
+                    style = metrics.title.copy(
                         color = Color.White,
                         shadow = Shadow(
-                            color = Color.Black.copy(alpha = 0.8f),
-                            offset = Offset(0f, 4f),
-                            blurRadius = 12f
+                            color = Color.Black.copy(alpha = 0.45f),
+                            offset = Offset(0f, 1f),
+                            blurRadius = 2f
                         )
                     )
                 )

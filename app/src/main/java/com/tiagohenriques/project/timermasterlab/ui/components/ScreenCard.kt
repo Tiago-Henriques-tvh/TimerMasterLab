@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalUiMetrics
 
 @Composable
 fun ScreenCard(
@@ -34,12 +33,11 @@ fun ScreenCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val metrics = LocalUiMetrics.current
     Card(
         onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 140.dp, max = 240.dp),
-        shape = RoundedCornerShape(20.dp),
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(metrics.cardRadius),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
@@ -48,12 +46,12 @@ fun ScreenCard(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(metrics.gap + 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(metrics.icon + 16.dp)
                     .background(
                         color = MaterialTheme.colorScheme.secondary,
                         shape = CircleShape
@@ -64,7 +62,7 @@ fun ScreenCard(
                     imageVector = icon,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(metrics.icon)
                 )
             }
 
@@ -76,7 +74,7 @@ fun ScreenCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = metrics.title,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }

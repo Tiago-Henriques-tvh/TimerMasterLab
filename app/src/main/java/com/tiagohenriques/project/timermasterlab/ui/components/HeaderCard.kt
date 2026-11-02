@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalUiMetrics
 
 @Composable
 fun HeaderCard(
@@ -31,11 +32,12 @@ fun HeaderCard(
     title: String,
     painter: Painter,
 ) {
+    val metrics = LocalUiMetrics.current
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(260.dp)
-            .clip(RoundedCornerShape(28.dp))
+            .height(metrics.headerHeight)
+            .clip(RoundedCornerShape(metrics.cardRadius))
     ) {
         Image(
             painter = painter,
@@ -61,23 +63,19 @@ fun HeaderCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(metrics.screenPadding),
             verticalArrangement = Arrangement.Bottom
         ) {
             Box {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.Black
-                    ),
+                    style = metrics.clock.copy(color = Color.Black),
                     modifier = Modifier.offset(x = 2.dp, y = 4.dp)
                 )
 
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
+                    style = metrics.clock.copy(
                         color = Color.White,
                         shadow = Shadow(
                             color = Color.Black.copy(alpha = 0.85f),

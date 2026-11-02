@@ -37,6 +37,7 @@ import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
 import com.tiagohenriques.project.timermasterlab.ui.components.HeaderCard
 import com.tiagohenriques.project.timermasterlab.ui.components.ScreenCard
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalUiMetrics
 import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalWindowSize
 import com.tiagohenriques.project.timermasterlab.ui.responsive.WindowSize
 import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
@@ -75,11 +76,7 @@ fun TimeTrial(navController: NavHostController) {
         WindowSize.WidthClass.Expanded -> 32.dp
     }
 
-    val itemHeight = when (windowSize.widthClass) {
-        WindowSize.WidthClass.Compact -> 96.dp
-        WindowSize.WidthClass.Medium -> 104.dp
-        WindowSize.WidthClass.Expanded -> 112.dp
-    }
+    val itemHeight = LocalUiMetrics.current.menuRowHeight
 
     val visible = remember { mutableStateListOf<Boolean>() }
     LaunchedEffect(Unit) {

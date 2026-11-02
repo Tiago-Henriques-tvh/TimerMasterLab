@@ -5,12 +5,17 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tiagohenriques.project.timermasterlab.data.StartListFileEntry
+import com.tiagohenriques.project.timermasterlab.data.StartListJson
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
+import com.tiagohenriques.project.timermasterlab.logging.AppLogger
+import com.tiagohenriques.project.timermasterlab.ui.utils.writeSharedStartListFile
 import com.tiagohenriques.project.timermasterlab.data.models.Category
 import com.tiagohenriques.project.timermasterlab.data.models.StartListEntry
 import com.tiagohenriques.project.timermasterlab.data.models.Type
@@ -18,8 +23,11 @@ import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepos
 import com.tiagohenriques.project.timermasterlab.data.repositories.StartListEntryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
@@ -44,12 +52,19 @@ data class DraftStartListItem(
     val distanceMeters: Float,
 )
 
+sealed class StartListEvent {
+    data class ShareFile(val file: File) : StartListEvent()
+    data class Message(val text: String) : StartListEvent()
+}
+
 class StartListViewModel(
     private val athletesRepository: AthletesRepository,
     private val startListEntryRepository: StartListEntryRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(StartListUiState())
     val uiState: StateFlow<StartListUiState> = _uiState.asStateFlow()
+    private val _events = MutableSharedFlow<StartListEvent>(extraBufferCapacity = 1)
+    val events: SharedFlow<StartListEvent> = _events.asSharedFlow()
     private var currentMode: Type = Type.TIME_TRIAL
 
     private fun startListFlowFor(mode: Type): Flow<List<StartListEntry>> {
@@ -267,6 +282,100 @@ class StartListViewModel(
         _uiState.update { it.copy(draft = resulting, hasUnsavedChanges = true) }
     }
 
+    fun shareStartListJson(context: Context) {
+        val draft = uiState.value.draft
+        if (draft.isEmpty()) {
+            viewModelScope.launch { _events.emit(StartListEvent.Message("No athletes to export")) }
+            return
+        }
+        viewModelScope.launch {
+            try {
+                val mode = Type.fromTypeToString(currentMode) ?: currentMode.name
+                val file = withContext(Dispatchers.IO) {
+                    writeSharedStartListFile(context, mode, draft)
+                }
+                _events.emit(StartListEvent.ShareFile(file))
+                AppLogger.i(TAG, "Exported start list JSON ${file.name}")
+            } catch (error: Exception) {
+                _events.emit(StartListEvent.Message("Export failed: ${error.message}"))
+                AppLogger.e(TAG, "JSON export failed", error)
+            }
+        }
+    }
+
+    fun importStartListFromJson(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val draftItems = readImportedDraft(context, uri)
+                _uiState.value = StartListUiState(
+                    draft = draftItems,
+                    hasUnsavedChanges = true,
+                    isLoading = false,
+                )
+                _events.emit(
+                    StartListEvent.Message(
+                        "Imported ${draftItems.size} athletes. Save to keep this start list.",
+                    ),
+                )
+                AppLogger.i(TAG, "Imported ${draftItems.size} athletes from JSON")
+            } catch (error: Exception) {
+                _uiState.update { it.copy(isLoading = false) }
+                _events.emit(StartListEvent.Message("Import failed: ${error.message ?: "invalid file"}"))
+                AppLogger.e(TAG, "JSON import failed", error)
+            }
+        }
+    }
+
+    private suspend fun readImportedDraft(context: Context, uri: Uri): List<DraftStartListItem> {
+        val json = withContext(Dispatchers.IO) {
+            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                ?: error("Could not read the selected file")
+        }
+        val document = StartListJson.decode(json)
+        val resolved = resolveImportedAthletes(document.entries)
+        return if (currentMode == Type.TIME_TRIAL) {
+            resolved.sortedBy { it.startOrder }.mapIndexed { index, item ->
+                item.copy(startOrder = index + 1)
+            }
+        } else {
+            resolved.sortedBy { it.startOrder }
+        }
+    }
+
+    private suspend fun resolveImportedAthletes(
+        entries: List<StartListFileEntry>,
+    ): List<DraftStartListItem> {
+        val known = athletesRepository.getAllAthletesOnce().toMutableList()
+        val usedIds = mutableSetOf<Long>()
+        return entries.map { entry ->
+            val match = known.firstOrNull { athlete ->
+                athlete.id !in usedIds &&
+                    athlete.name.equals(entry.name, ignoreCase = true) &&
+                    athlete.age == entry.age &&
+                    athlete.gender.equals(entry.gender, ignoreCase = true) &&
+                    athlete.category == entry.category
+            }
+            val athlete = match ?: insertImportedAthlete(entry).also { known += it }
+            usedIds += athlete.id
+            DraftStartListItem(
+                athlete = athlete,
+                startOrder = entry.startOrder,
+                distanceMeters = entry.distanceMeters,
+            )
+        }
+    }
+
+    private suspend fun insertImportedAthlete(entry: StartListFileEntry): Athlete {
+        val created = Athlete(
+            name = entry.name,
+            age = entry.age,
+            gender = entry.gender,
+            category = entry.category,
+        )
+        return created.copy(id = athletesRepository.insert(created))
+    }
+
     fun exportStartListToPDF(context: Context) = viewModelScope.launch {
         val draft = uiState.value.draft
         if (draft.isEmpty()) {
@@ -371,5 +480,9 @@ class StartListViewModel(
                 }
             }
         }
+    }
+
+    private companion object {
+        const val TAG = "StartListViewModel"
     }
 }

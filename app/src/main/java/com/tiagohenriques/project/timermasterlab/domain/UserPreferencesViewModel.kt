@@ -12,6 +12,7 @@ class UserPreferencesViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
     val isDarkThemeFlow: Flow<Boolean> = userPreferencesRepository.isBlackTheme
+    val isFileLoggingEnabledFlow: Flow<Boolean> = userPreferencesRepository.isFileLoggingEnabled
 
     fun getInitialTheme(): Boolean =
         runBlocking {
@@ -21,6 +22,12 @@ class UserPreferencesViewModel(
     fun changeTheme(isBlackTheme: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.saveThemePreference(isBlackTheme)
+        }
+    }
+
+    fun changeFileLogging(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveFileLoggingEnabled(enabled)
         }
     }
 }

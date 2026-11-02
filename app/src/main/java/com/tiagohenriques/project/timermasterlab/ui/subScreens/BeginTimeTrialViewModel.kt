@@ -2,6 +2,7 @@ package com.tiagohenriques.project.timermasterlab.ui.subScreens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tiagohenriques.project.timermasterlab.logging.AppLogger
 import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
@@ -43,6 +44,9 @@ class BeginTimeTrialViewModel(
     private val _sessionTime = MutableStateFlow(0L)
     val sessionTime: StateFlow<Long> = _sessionTime.asStateFlow()
 
+    private val _nowMillis = MutableStateFlow(System.currentTimeMillis())
+    val nowMillis: StateFlow<Long> = _nowMillis.asStateFlow()
+
     private var globalTimerJob: Job? = null
     private var sessionStartTime: Long = 0L
 
@@ -69,68 +73,74 @@ class BeginTimeTrialViewModel(
     }
 
     fun startAthlete(item: DraftTimeTrialItem) {
+        val current = _uiState.value.draft.firstOrNull { it.athlete.id == item.athlete.id } ?: return
+        if (current.result?.startedAt != null) return
+
         val now = System.currentTimeMillis()
-
-        if (globalTimerJob == null) {
-            sessionStartTime = now
-            globalTimerJob = viewModelScope.launch {
-                while (true) {
-                    delay(100L)
-                    _sessionTime.value = System.currentTimeMillis() - sessionStartTime
-                }
-            }
-        }
-
-        val updatedResult = item.result ?: SessionResult(
-            sessionId = item.sessionId,
-            athleteId = item.athlete.id,
-            startOrder = item.startOrder,
-            distance = item.distance.toInt(),
+        ensureClock(now)
+        val updatedResult = SessionResult(
+            sessionId = current.sessionId,
+            athleteId = current.athlete.id,
+            startOrder = current.startOrder,
+            distance = current.distance.toInt(),
             startedAt = now,
-            duration = 0L
+            duration = 0L,
         )
-
+        _uiState.update { state ->
+            state.copy(
+                draft = state.draft.map {
+                    if (it.athlete.id == current.athlete.id) it.copy(result = updatedResult) else it
+                },
+            )
+        }
+        AppLogger.i(TAG, "Start ${current.athlete.name}")
         viewModelScope.launch {
             sessionResultRepo.update(updatedResult)
-
-            _uiState.update { state ->
-                val updatedDraft = state.draft.map {
-                    if (it.athlete.id == item.athlete.id) it.copy(result = updatedResult)
-                    else it
-                }
-                state.copy(draft = updatedDraft)
-            }
         }
     }
 
     fun stopAthlete(item: DraftTimeTrialItem) {
+        val current = _uiState.value.draft.firstOrNull { it.athlete.id == item.athlete.id } ?: return
+        val result = current.result ?: return
+        val startedAt = result.startedAt ?: return
+        if (result.duration != null && result.duration > 0L) return
+
         val now = System.currentTimeMillis()
-        val result = item.result ?: return
-        val duration = now - (result.startedAt ?: now)
-
-        viewModelScope.launch {
-            sessionResultRepo.update(result.copy(duration = duration))
-        }
-
+        val duration = (now - startedAt).coerceAtLeast(1L)
+        val stopped = result.copy(duration = duration)
         _uiState.update { state ->
             val updatedDraft = state.draft.map {
-                if (it.athlete.id == item.athlete.id) it.copy(result = it.result?.copy(duration = duration))
-                else it
+                if (it.athlete.id == current.athlete.id) it.copy(result = stopped) else it
             }
-            val finishedAll = updatedDraft.all { dr ->
-                val r = dr.result
-                r != null && r.startedAt != null && r.duration != null && r.duration > 0L
+            val finishedAll = updatedDraft.all { draft ->
+                val recorded = draft.result
+                recorded != null && recorded.startedAt != null &&
+                    recorded.duration != null && recorded.duration > 0L
             }
-
             if (finishedAll) {
                 globalTimerJob?.cancel()
                 globalTimerJob = null
-                viewModelScope.launch {
-                    enforceMaxSessions()
-                }
+                viewModelScope.launch { enforceMaxSessions() }
             }
-
             state.copy(draft = updatedDraft, hasEnded = finishedAll)
+        }
+        AppLogger.i(TAG, "Stop ${current.athlete.name} duration=$duration")
+        viewModelScope.launch {
+            sessionResultRepo.update(stopped)
+        }
+    }
+
+    private fun ensureClock(now: Long) {
+        _nowMillis.value = now
+        if (globalTimerJob != null) return
+        sessionStartTime = now
+        globalTimerJob = viewModelScope.launch {
+            while (true) {
+                delay(100L)
+                val tick = System.currentTimeMillis()
+                _nowMillis.value = tick
+                _sessionTime.value = tick - sessionStartTime
+            }
         }
     }
 
@@ -153,7 +163,12 @@ class BeginTimeTrialViewModel(
             globalTimerJob?.cancel()
             globalTimerJob = null
             _sessionTime.value = 0L
+            _nowMillis.value = System.currentTimeMillis()
         }
+    }
+
+    private companion object {
+        const val TAG = "BeginTimeTrial"
     }
 
     private suspend fun enforceMaxSessions(maxSessions: Int = 20) {

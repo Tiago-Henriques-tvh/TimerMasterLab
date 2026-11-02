@@ -15,6 +15,16 @@ class Utils {
             return "%02d.%02d.%02d".format(hours, minutes, seconds)
         }
 
+        fun formatLiveDuration(millis: Long?): String {
+            val safe = (millis ?: 0L).coerceAtLeast(0L)
+            val totalSeconds = safe / 1000
+            val hours = totalSeconds / 3600
+            val minutes = (totalSeconds % 3600) / 60
+            val seconds = totalSeconds % 60
+            val tenths = (safe % 1000) / 100
+            return "%02d.%02d.%02d.%d".format(hours, minutes, seconds, tenths)
+        }
+
         fun formatSessionDate(dateStr: String): String {
             if (dateStr.isBlank()) return ""
             try {

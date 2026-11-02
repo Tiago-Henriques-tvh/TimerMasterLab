@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tiagohenriques.project.timermasterlab.R
-import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalWindowSize
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalUiMetrics
 import com.tiagohenriques.project.timermasterlab.ui.theme.TimerMasterLabTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,15 +44,8 @@ fun TopAppBar(
     modifier: Modifier = Modifier,
     actionIcons: @Composable RowScope.() -> Unit = {},
 ) {
-    val screenWidth = LocalWindowSize.current.widthDp
+    val metrics = LocalUiMetrics.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val isLargeScreen = screenWidth >= 600
-    val isSmallScreen = screenWidth < 360
-    val logoSize = when {
-        isSmallScreen -> 45.dp
-        isLargeScreen -> 65.dp
-        else -> 55.dp
-    }
 
     CenterAlignedTopAppBar(
         title = {
@@ -65,26 +58,20 @@ fun TopAppBar(
                     contentDescription = "App Logo",
                     tint = MaterialTheme.colorScheme.secondaryContainer,
                     modifier = Modifier
-                        .size(logoSize)
+                        .size(metrics.logo)
                         .padding(4.dp),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(id = R.string.app_name),
-                        style =
-                            MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.surface,
-                            ),
+                        style = metrics.title.copy(color = MaterialTheme.colorScheme.surface),
+                        maxLines = 1,
                     )
                     Text(
                         text = stringResource(id = currentScreenTitle),
-                        style =
-                            MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.surfaceContainer,
-                            ),
+                        style = metrics.body.copy(color = MaterialTheme.colorScheme.surfaceContainer),
+                        maxLines = 1,
                     )
                 }
             }

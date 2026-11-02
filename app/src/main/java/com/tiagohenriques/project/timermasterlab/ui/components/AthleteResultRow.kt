@@ -26,7 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.tiagohenriques.project.timermasterlab.ui.responsive.LocalUiMetrics
 
 /**
  * Shared row used by both Time Trial and Group Race live screens.
@@ -40,12 +42,15 @@ fun AthleteResultRow(
     athleteName: String,
     durationText: String,
     modifier: Modifier = Modifier,
+    rowHeight: Dp = 60.dp,
+    actionWidth: Dp = 80.dp,
     trailing: @Composable () -> Unit,
 ) {
+    val metrics = LocalUiMetrics.current
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp),
+            .height(rowHeight),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -57,7 +62,7 @@ fun AthleteResultRow(
         ) {
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(metrics.icon)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = CircleShape,
@@ -66,8 +71,9 @@ fun AthleteResultRow(
             ) {
                 Text(
                     text = startOrder.toString(),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = metrics.label,
                     fontWeight = FontWeight.Bold,
+                    maxLines = 1,
                 )
             }
 
@@ -76,8 +82,7 @@ fun AthleteResultRow(
             Text(
                 text = athleteName,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                style = metrics.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -86,15 +91,16 @@ fun AthleteResultRow(
 
             Text(
                 text = durationText,
-                modifier = Modifier.width(72.dp),
-                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.width(metrics.buttonWidth),
+                style = metrics.label,
                 textAlign = TextAlign.End,
+                maxLines = 1,
             )
 
             Spacer(Modifier.width(4.dp))
 
             Box(
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier.width(actionWidth),
                 contentAlignment = Alignment.Center,
             ) {
                 trailing()
@@ -112,6 +118,6 @@ fun FinishedIcon(
         imageVector = Icons.Default.CheckCircle,
         contentDescription = null,
         tint = tint,
-        modifier = modifier.size(28.dp),
+        modifier = modifier.size(LocalUiMetrics.current.icon),
     )
 }

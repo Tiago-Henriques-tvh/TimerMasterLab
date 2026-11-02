@@ -21,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
+import com.tiagohenriques.project.timermasterlab.logging.AppLogger
 import com.tiagohenriques.project.timermasterlab.domain.UserPreferencesViewModel
 import com.tiagohenriques.project.timermasterlab.navigation.AppNavHost
 import com.tiagohenriques.project.timermasterlab.navigation.TimerMasterLabAppScreens
@@ -39,6 +40,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: UserPreferencesViewModel = viewModel(factory = AppViewModelProvider.Factory)
             val isDarkTheme = viewModel.isDarkThemeFlow.collectAsState(initial = viewModel.getInitialTheme()).value
+            val fileLoggingEnabled by viewModel.isFileLoggingEnabledFlow.collectAsState(
+                initial = AppLogger.isEnabled,
+            )
 
             TimerMasterLabTheme(
                 darkTheme = isDarkTheme,
@@ -79,6 +83,11 @@ class MainActivity : ComponentActivity() {
                         AppNavHost(
                             isDarkTheme = isDarkTheme,
                             changeTheme = { viewModel.changeTheme(!isDarkTheme) },
+                            fileLoggingEnabled = fileLoggingEnabled,
+                            onFileLoggingChange = { enabled ->
+                                AppLogger.setEnabled(applicationContext, enabled)
+                                viewModel.changeFileLogging(enabled)
+                            },
                             navController = navController,
                             modifier = Modifier
                                 .fillMaxSize()
