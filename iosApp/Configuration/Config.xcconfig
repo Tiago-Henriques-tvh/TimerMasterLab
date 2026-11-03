@@ -1,0 +1,7 @@
+PRODUCT_BUNDLE_IDENTIFIER=com.tiagohenriques.project.timermasterlab.ios
+PRODUCT_NAME=TimerMasterLab
+SWIFT_VERSION=5.0
+IPHONEOS_DEPLOYMENT_TARGET=14.0
+TARGETED_DEVICE_FAMILY=1,2
+FRAMEWORK_SEARCH_PATHS=$(inherited) $(SRCROOT)/../composeApp/build/xcode-frameworks
+OTHER_LDFLAGS=$(inherited) -framework ComposeApp

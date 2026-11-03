@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.tiagohenriques.project.timermasterlab.data.AppContainer
 import com.tiagohenriques.project.timermasterlab.data.AppDataContainer
 import com.tiagohenriques.project.timermasterlab.data.UserPreferencesRepository
+import com.tiagohenriques.project.timermasterlab.data.database.initializeDatabaseContext
 import com.tiagohenriques.project.timermasterlab.logging.AppLogger
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -30,9 +31,10 @@ public class TimerMasterLabApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        initializeDatabaseContext(this)
         AppLogger.init(this)
         userPreferencesRepository = UserPreferencesRepository(dataStore)
-        container = AppDataContainer(this)
+        container = AppDataContainer()
         applicationScope.launch {
             val enabled = userPreferencesRepository.isFileLoggingEnabled.first()
             AppLogger.setEnabled(this@TimerMasterLabApplication, enabled)

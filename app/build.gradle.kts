@@ -94,6 +94,9 @@ tasks.named("check") {
 }
 
 dependencies {
+    implementation(project(":shared"))
+    implementation(project(":composeApp"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
