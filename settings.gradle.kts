@@ -26,5 +26,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "TimerMasterLab"
 include(":app")
-include(":composeApp")
-include(":shared")

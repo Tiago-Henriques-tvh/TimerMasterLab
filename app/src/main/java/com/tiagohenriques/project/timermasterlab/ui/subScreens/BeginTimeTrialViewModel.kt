@@ -130,8 +130,7 @@ class BeginTimeTrialViewModel(
         val current = _uiState.value.draft.firstOrNull { it.athlete.id == item.athlete.id } ?: return
         val result = current.result ?: return
         val startedAt = result.startedAt ?: return
-        val currentDuration = result.duration
-        if (currentDuration != null && currentDuration > 0L) return
+        if (result.duration != null && result.duration > 0L) return
 
         val now = System.currentTimeMillis()
         val duration = (now - startedAt).coerceAtLeast(1L)
@@ -143,9 +142,8 @@ class BeginTimeTrialViewModel(
             val nonIgnored = updatedDraft.filter { !it.isIgnored }
             val finishedAll = nonIgnored.isNotEmpty() && nonIgnored.all { draft ->
                 val recorded = draft.result
-                val recordedDuration = recorded?.duration
                 recorded != null && recorded.startedAt != null &&
-                    recordedDuration != null && recordedDuration > 0L
+                    recorded.duration != null && recorded.duration > 0L
             }
             if (finishedAll) {
                 globalTimerJob?.cancel()
@@ -219,10 +217,7 @@ class BeginTimeTrialViewModel(
 
         val completedSessions = allSessions.filter { session ->
             val results = sessionResultRepo.getSessionResultsBySessionId(session.sessionId).first()
-            results.any { result ->
-                val duration = result.duration
-                duration != null && duration > 0L
-            }
+            results.any { it.duration != null && it.duration > 0L }
         }
 
         if (completedSessions.size <= maxSessions) return

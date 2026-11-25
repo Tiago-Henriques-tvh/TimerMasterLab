@@ -141,8 +141,7 @@ class BeginGroupRaceViewModel(
             }
             val finishedAll = updatedDraft.all { dr ->
                 val r = dr.result
-                val duration = r?.duration
-                r != null && r.startedAt != null && duration != null && duration > 0L
+                r != null && r.startedAt != null && r.duration != null && r.duration > 0L
             }
 
             if (finishedAll) {
@@ -197,10 +196,7 @@ class BeginGroupRaceViewModel(
 
         val completedSessions = allSessions.filter { session ->
             val results = sessionResultRepo.getSessionResultsBySessionId(session.sessionId).first()
-            results.any { result ->
-                val duration = result.duration
-                duration != null && duration > 0L
-            }
+            results.any { it.duration != null && it.duration > 0L }
         }
 
         if (completedSessions.size <= maxSessions) return
