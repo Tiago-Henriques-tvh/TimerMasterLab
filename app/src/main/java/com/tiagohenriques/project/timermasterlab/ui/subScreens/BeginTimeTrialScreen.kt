@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,6 +43,7 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
     val sessionTime by viewModel.sessionTime.collectAsState()
     val nowMillis by viewModel.nowMillis.collectAsState()
     var showAbortConfirm by rememberSaveable { mutableStateOf(false) }
+    var athleteToIgnore by remember { mutableStateOf<DraftTimeTrialItem?>(null) }
     val split = LocalWindowSize.current.widthClass != WindowSize.WidthClass.Compact
     val queued = uiState.draft.filter { it.result?.startedAt == null && !it.isIgnored }
     val running = uiState.draft.filter { item ->
@@ -79,7 +81,7 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
                 split = split,
                 onStart = viewModel::startAthlete,
                 onStop = viewModel::stopAthlete,
-                onIgnore = viewModel::ignoreAthlete,
+                onIgnore = { item -> athleteToIgnore = item },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -93,6 +95,20 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
                 navController.navigateUp()
             },
             onDismiss = { showAbortConfirm = false },
+        )
+    }
+
+    if (athleteToIgnore != null) {
+        IgnoreAthleteDialog(
+            athleteName = athleteToIgnore?.athlete?.name ?: "",
+            onConfirm = {
+                val item = athleteToIgnore
+                athleteToIgnore = null
+                if (item != null) {
+                    viewModel.ignoreAthlete(item)
+                }
+            },
+            onDismiss = { athleteToIgnore = null },
         )
     }
 }
@@ -141,6 +157,29 @@ private fun AbortSessionDialog(
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text("Abort", color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    )
+}
+
+@Composable
+private fun IgnoreAthleteDialog(
+    athleteName: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Ignore athlete?") },
+        text = { Text("Are you sure you want to ignore $athleteName? They did not appear to start and will be excluded from the session results.") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Ignore", color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
