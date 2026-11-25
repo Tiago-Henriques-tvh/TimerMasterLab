@@ -405,7 +405,7 @@ class StartListViewModel(
                 }
 
                 var currentPage = startNewPage()
-                val canvas = currentPage.canvas
+                var canvas = currentPage.canvas
                 val paint = Paint().apply {
                     isAntiAlias = true
                     color = Color.BLACK
@@ -443,6 +443,7 @@ class StartListViewModel(
                     if (lineCount >= linesPerPage) {
                         pdf.finishPage(currentPage)
                         currentPage = startNewPage()
+                        canvas = currentPage.canvas
                         lineCount = 0
                     }
 
