@@ -6,11 +6,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -47,17 +49,18 @@ fun TimeTrialRaceBoard(
     split: Boolean,
     onStart: (DraftTimeTrialItem) -> Unit,
     onStop: (DraftTimeTrialItem) -> Unit,
+    onIgnore: (DraftTimeTrialItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val gap = LocalUiMetrics.current.gap
     if (split) {
         Row(modifier = modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(gap)) {
-            QueuePane(queued, onStart, Modifier.weight(1f).fillMaxHeight())
+            QueuePane(queued, onStart, onIgnore, Modifier.weight(1f).fillMaxHeight())
             LivePane(running, finished, nowMillis, onStop, Modifier.weight(1.1f).fillMaxHeight())
         }
     } else {
         Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(gap)) {
-            QueuePane(queued, onStart, Modifier.weight(1f).fillMaxWidth())
+            QueuePane(queued, onStart, onIgnore, Modifier.weight(1f).fillMaxWidth())
             LivePane(running, finished, nowMillis, onStop, Modifier.weight(1f).fillMaxWidth())
         }
     }
@@ -67,6 +70,7 @@ fun TimeTrialRaceBoard(
 private fun QueuePane(
     queued: List<DraftTimeTrialItem>,
     onStart: (DraftTimeTrialItem) -> Unit,
+    onIgnore: (DraftTimeTrialItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     RacePane("Start queue", queued.size, LiveRaceStatus.Queued, "No athletes waiting", modifier) {
@@ -81,6 +85,9 @@ private fun QueuePane(
                 actionLabel = "Start",
                 actionColor = Color(0xFF2E7D32),
                 onAction = { onStart(item) },
+                secondaryActionLabel = "Ignore",
+                secondaryActionColor = Color(0xFF757575),
+                onSecondaryAction = { onIgnore(item) },
             )
         }
     }
@@ -167,6 +174,9 @@ private fun AthleteRaceCard(
     actionLabel: String?,
     actionColor: Color,
     onAction: () -> Unit,
+    secondaryActionLabel: String? = null,
+    secondaryActionColor: Color = Color.Transparent,
+    onSecondaryAction: () -> Unit = {},
 ) {
     val metrics = LocalUiMetrics.current
     val interaction = remember { MutableInteractionSource() }
@@ -199,7 +209,13 @@ private fun AthleteRaceCard(
                 Text(text = detail, style = metrics.body, color = accent, maxLines = 1)
             }
             Text(text = clock, style = metrics.label, maxLines = 1)
+            if (secondaryActionLabel != null) {
+                LiveRaceActionButton(label = secondaryActionLabel, containerColor = secondaryActionColor, onClick = onSecondaryAction)
+            }
             if (actionLabel != null) {
+                if (secondaryActionLabel != null) {
+                    Spacer(Modifier.width(4.dp))
+                }
                 LiveRaceActionButton(label = actionLabel, containerColor = actionColor, onClick = onAction)
             }
         }

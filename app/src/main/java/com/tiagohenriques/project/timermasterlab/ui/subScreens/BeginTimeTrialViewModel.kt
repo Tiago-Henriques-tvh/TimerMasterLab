@@ -29,7 +29,8 @@ data class DraftTimeTrialItem(
     val athlete: Athlete,
     val result: SessionResult?,
     val startOrder: Int,
-    val distance: Float
+    val distance: Float,
+    val isIgnored: Boolean = false,
 )
 
 class BeginTimeTrialViewModel(
@@ -64,7 +65,8 @@ class BeginTimeTrialViewModel(
                     athlete = athlete,
                     result = null,
                     startOrder = entry.startOrder,
-                    distance = entry.distanceMeters
+                    distance = entry.distanceMeters,
+                    isIgnored = false,
                 )
             }.sortedBy { it.startOrder }
 
@@ -99,6 +101,31 @@ class BeginTimeTrialViewModel(
         }
     }
 
+    fun ignoreAthlete(item: DraftTimeTrialItem) {
+        val current = _uiState.value.draft.firstOrNull { it.athlete.id == item.athlete.id } ?: return
+        if (current.result?.startedAt != null) return
+
+        _uiState.update { state ->
+            val updatedDraft = state.draft.map {
+                if (it.athlete.id == current.athlete.id) it.copy(isIgnored = true) else it
+            }
+            val nonIgnored = updatedDraft.filter { !it.isIgnored }
+            val finishedAll = nonIgnored.isNotEmpty() && nonIgnored.all { draft ->
+                val recorded = draft.result
+                val recordedDuration = recorded?.duration
+                recorded != null && recorded.startedAt != null &&
+                    recordedDuration != null && recordedDuration > 0L
+            }
+            if (finishedAll) {
+                globalTimerJob?.cancel()
+                globalTimerJob = null
+                viewModelScope.launch { enforceMaxSessions() }
+            }
+            state.copy(draft = updatedDraft, hasEnded = finishedAll)
+        }
+        AppLogger.i(TAG, "Ignore ${current.athlete.name}")
+    }
+
     fun stopAthlete(item: DraftTimeTrialItem) {
         val current = _uiState.value.draft.firstOrNull { it.athlete.id == item.athlete.id } ?: return
         val result = current.result ?: return
@@ -113,7 +140,8 @@ class BeginTimeTrialViewModel(
             val updatedDraft = state.draft.map {
                 if (it.athlete.id == current.athlete.id) it.copy(result = stopped) else it
             }
-            val finishedAll = updatedDraft.all { draft ->
+            val nonIgnored = updatedDraft.filter { !it.isIgnored }
+            val finishedAll = nonIgnored.isNotEmpty() && nonIgnored.all { draft ->
                 val recorded = draft.result
                 val recordedDuration = recorded?.duration
                 recorded != null && recorded.startedAt != null &&
@@ -158,7 +186,7 @@ class BeginTimeTrialViewModel(
             }
 
             _uiState.update { state ->
-                val clearedDraft = state.draft.map { it.copy(result = null) }
+                val clearedDraft = state.draft.map { it.copy(result = null, isIgnored = false) }
                 state.copy(draft = clearedDraft, hasEnded = false)
             }
 

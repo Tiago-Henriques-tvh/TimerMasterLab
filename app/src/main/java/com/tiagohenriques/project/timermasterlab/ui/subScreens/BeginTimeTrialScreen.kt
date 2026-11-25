@@ -43,7 +43,7 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
     val nowMillis by viewModel.nowMillis.collectAsState()
     var showAbortConfirm by rememberSaveable { mutableStateOf(false) }
     val split = LocalWindowSize.current.widthClass != WindowSize.WidthClass.Compact
-    val queued = uiState.draft.filter { it.result?.startedAt == null }
+    val queued = uiState.draft.filter { it.result?.startedAt == null && !it.isIgnored }
     val running = uiState.draft.filter { item ->
         val result = item.result
         result?.startedAt != null && (result.duration == null || result.duration == 0L)
@@ -79,6 +79,7 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
                 split = split,
                 onStart = viewModel::startAthlete,
                 onStop = viewModel::stopAthlete,
+                onIgnore = viewModel::ignoreAthlete,
                 modifier = Modifier.weight(1f),
             )
         }
