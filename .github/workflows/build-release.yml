@@ -1,0 +1,53 @@
+name: Build Android Release APK
+
+on:
+  push:
+      branches: [ master, main ]
+      tags:
+          - 'release/*'
+  pull_request:
+      branches: [ master, main ]
+
+jobs:
+  build:
+    name: Build Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'gradle'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+
+    - name: Prepare Renamed APK
+      run: |
+        TAG_REF="${{ github.ref }}"
+        if [[ "$TAG_REF" == refs/tags/release/* ]]; then
+          VERSION="${TAG_REF#refs/tags/release/}"
+          if [[ "$VERSION" == v* ]]; then
+            APK_NAME="TimerMasterLab_${VERSION}.apk"
+          else
+            APK_NAME="TimerMasterLab_v${VERSION}.apk"
+          fi
+        else
+          APK_NAME="TimerMasterLab-snapshot.apk"
+        fi
+        echo "Renaming APK to $APK_NAME"
+        cp app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/$APK_NAME"
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: TimerMasterLab-Release-APK
+        path: app/build/outputs/apk/release/TimerMasterLab_*.apk
