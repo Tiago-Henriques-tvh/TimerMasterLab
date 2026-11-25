@@ -462,17 +462,16 @@ class StartListViewModel(
 
                 pdf.finishPage(currentPage)
 
-                val file = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    fileName
-                )
+                val directory = File(context.cacheDir, "shared")
+                if (!directory.exists()) {
+                    directory.mkdirs()
+                }
+                val file = File(directory, fileName)
 
                 FileOutputStream(file).use { pdf.writeTo(it) }
                 pdf.close()
 
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "PDF saved: ${file.absolutePath}", Toast.LENGTH_LONG).show()
-                }
+                _events.emit(StartListEvent.ShareFile(file))
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

@@ -60,6 +60,7 @@ class SessionResultViewModel(
 
     sealed interface UiEvent {
         data class Message(val text: String) : UiEvent
+        data class ShareFile(val file: File, val subject: String) : UiEvent
     }
 
     private val _selectedSessionId = MutableStateFlow<Long?>(null)
@@ -149,10 +150,6 @@ class SessionResultViewModel(
 
 
     fun exportCurrentResultsToPdf(context: Context, title: String = "Session Results") {
-        // Touch context to keep it from being flagged as unused by IDE inspections.
-        // (We keep it as a parameter to make migrating to MediaStore/SAF export easier.)
-        context.applicationContext
-
         val snapshot = uiState.value
         val flatResults: List<Pair<SessionResult, Athlete?>> = snapshot.sections
             .flatMap { section -> section.items }
@@ -166,12 +163,13 @@ class SessionResultViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _isExporting.value = true
             try {
-                val path = exportResultsToPdfInternal(
+                val file = exportResultsToPdfInternal(
+                    context = context,
                     results = flatResults,
                     groupBy = snapshot.groupBy,
                     title = title,
                 )
-                _events.emit(UiEvent.Message("PDF saved: $path"))
+                _events.emit(UiEvent.ShareFile(file, title))
             } catch (e: Throwable) {
                 _events.emit(UiEvent.Message("Error saving PDF: ${e.localizedMessage ?: "Unknown error"}"))
             } finally {
@@ -181,10 +179,11 @@ class SessionResultViewModel(
     }
 
     private fun exportResultsToPdfInternal(
+        context: Context,
         results: List<Pair<SessionResult, Athlete?>>,
         groupBy: String? = null,
         title: String = "Session Results",
-    ): String {
+    ): File {
         val pdfDocument = PdfDocument()
         val pageWidth = 595
         val pageHeight = 842
@@ -303,10 +302,11 @@ class SessionResultViewModel(
 
         pdfDocument.finishPage(currentPage)
 
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            "session_results_${System.currentTimeMillis()}.pdf",
-        )
+        val directory = File(context.cacheDir, "shared")
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+        val file = File(directory, "session_results_${System.currentTimeMillis()}.pdf")
 
         try {
             pdfDocument.writeTo(FileOutputStream(file))
@@ -316,6 +316,6 @@ class SessionResultViewModel(
             pdfDocument.close()
         }
 
-        return file.absolutePath
+        return file
     }
 }

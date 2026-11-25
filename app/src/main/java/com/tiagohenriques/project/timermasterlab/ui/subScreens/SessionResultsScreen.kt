@@ -44,6 +44,7 @@ import com.tiagohenriques.project.timermasterlab.data.models.Athlete
 import com.tiagohenriques.project.timermasterlab.data.models.SessionResult
 import com.tiagohenriques.project.timermasterlab.di.AppViewModelProvider
 import com.tiagohenriques.project.timermasterlab.ui.utils.Utils
+import com.tiagohenriques.project.timermasterlab.ui.utils.shareStartListFile
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -62,6 +63,9 @@ fun SessionResultsScreen(navController: NavHostController) {
             when (event) {
                 is SessionResultViewModel.UiEvent.Message -> {
                     Toast.makeText(context, event.text, Toast.LENGTH_LONG).show()
+                }
+                is SessionResultViewModel.UiEvent.ShareFile -> {
+                    shareStartListFile(context, event.file)
                 }
             }
         }

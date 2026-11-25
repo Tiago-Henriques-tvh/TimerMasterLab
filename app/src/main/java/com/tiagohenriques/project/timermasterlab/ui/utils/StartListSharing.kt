@@ -47,15 +47,18 @@ fun writeSharedStartListFile(
 fun shareStartListFile(context: Context, file: File) {
     val authority = "${context.packageName}.fileprovider"
     val uri = FileProvider.getUriForFile(context, authority, file)
+    val isPdf = file.name.endsWith(".pdf", ignoreCase = true)
+    val mimeType = if (isPdf) "application/pdf" else "application/json"
+    val subject = if (isPdf) "Start list PDF" else "Start list"
     val send = Intent(Intent.ACTION_SEND).apply {
-        type = "application/json"
+        type = mimeType
         putExtra(Intent.EXTRA_STREAM, uri)
-        putExtra(Intent.EXTRA_SUBJECT, "Start list")
+        putExtra(Intent.EXTRA_SUBJECT, subject)
         putExtra(Intent.EXTRA_TITLE, file.name)
         clipData = ClipData.newRawUri(file.name, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    val chooser = Intent.createChooser(send, "Share start list").apply {
+    val chooser = Intent.createChooser(send, subject).apply {
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     context.startActivity(chooser)
