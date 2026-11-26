@@ -112,7 +112,7 @@ fun AthleteResultRow(
 @Composable
 fun FinishedIcon(
     modifier: Modifier = Modifier,
-    tint: Color = Color(0xFF2E7D32),
+    tint: Color = Color(0xFFA66F00),
 ) {
     Icon(
         imageVector = Icons.Default.CheckCircle,

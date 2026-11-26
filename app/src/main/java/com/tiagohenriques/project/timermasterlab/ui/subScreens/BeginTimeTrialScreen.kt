@@ -59,8 +59,11 @@ fun BeginTimeTrialScreen(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(LocalUiMetrics.current.screenPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(
+                    horizontal = LocalUiMetrics.current.screenPadding,
+                    vertical = if (split) LocalUiMetrics.current.screenPadding else 0.dp,
+                ),
+            verticalArrangement = Arrangement.spacedBy(if (split) 12.dp else 2.dp),
         ) {
             RaceClockHeader(
                 sessionTime = sessionTime,
@@ -139,8 +142,17 @@ private fun RaceClockHeader(
         )
         LiveRaceActionButton(
             label = if (hasEnded) "Done" else "Abort",
-            containerColor = if (hasEnded) Color(0xFF2E7D32) else Color(0xFFC62828),
+            containerColor = if (hasEnded) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                Color(0xFFB63F3A)
+            },
             onClick = onAbortOrDone,
+            contentColor = if (hasEnded) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                Color.White
+            },
         )
     }
 }

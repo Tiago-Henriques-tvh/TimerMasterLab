@@ -48,8 +48,11 @@ fun BeginGroupRaceScreen(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(LocalUiMetrics.current.screenPadding),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(
+                    horizontal = LocalUiMetrics.current.screenPadding,
+                    vertical = if (split) LocalUiMetrics.current.screenPadding else 0.dp,
+                ),
+            verticalArrangement = Arrangement.spacedBy(if (split) 12.dp else 2.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -71,9 +74,18 @@ fun BeginGroupRaceScreen(navController: NavHostController) {
                 )
                 LiveRaceActionButton(
                     label = if (uiState.hasEnded) "Done" else "Abort",
-                    containerColor = if (uiState.hasEnded) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    containerColor = if (uiState.hasEnded) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        Color(0xFFB63F3A)
+                    },
                     onClick = {
                         if (!uiState.hasEnded) showAbortConfirm = true else navController.navigateUp()
+                    },
+                    contentColor = if (uiState.hasEnded) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        Color.White
                     },
                 )
             }

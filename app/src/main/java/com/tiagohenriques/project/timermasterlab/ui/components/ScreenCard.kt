@@ -1,6 +1,7 @@
 package com.tiagohenriques.project.timermasterlab.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,12 +14,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,14 +38,19 @@ fun ScreenCard(
     modifier: Modifier = Modifier
 ) {
     val metrics = LocalUiMetrics.current
+    val interaction = remember { MutableInteractionSource() }
     Card(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(metrics.cardRadius),
+        interactionSource = interaction,
+        modifier = modifier
+            .fillMaxWidth()
+            .pressScale(interaction),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        border = CardDefaults.outlinedCardBorder(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier
@@ -51,9 +60,9 @@ fun ScreenCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(metrics.icon + 16.dp)
+                    .size(44.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -61,7 +70,7 @@ fun ScreenCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondary,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(metrics.icon)
                 )
             }
@@ -75,9 +84,15 @@ fun ScreenCard(
                 Text(
                     text = title,
                     style = metrics.title,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+            )
         }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.collectAsState
@@ -54,8 +55,18 @@ class MainActivity : ComponentActivity() {
                     val currentScreenTitle = TimerMasterLabAppScreens.fromRoute(
                         backStackEntry?.destination?.route,
                     ).title
+                    val currentRoute = backStackEntry?.destination?.route
+                    val isHomeScreen = currentRoute == null ||
+                        currentRoute == TimerMasterLabAppScreens.Home.name
+                    val isLiveRaceScreen = currentRoute in setOf(
+                        TimerMasterLabAppScreens.BeginTimeTrial.name,
+                        TimerMasterLabAppScreens.BeginGroupRace.name,
+                    )
+                    val isStartListScreen = backStackEntry?.destination?.route
+                        ?.startsWith("${TimerMasterLabAppScreens.StartList.name}/") == true
 
                     Scaffold(
+                        containerColor = MaterialTheme.colorScheme.background,
                         modifier =
                             Modifier.padding(
                                 start = WindowInsets.safeDrawing
@@ -66,18 +77,20 @@ class MainActivity : ComponentActivity() {
                                     .calculateRightPadding(layoutDirection),
                             ),
                         topBar = {
-                            TopAppBar(
-                                currentScreenTitle = currentScreenTitle,
-                                canNavigateBack = navController.previousBackStackEntry != null && (
-                                    currentScreenTitle in listOf(
-                                        TimerMasterLabAppScreens.Home.title,
-                                        TimerMasterLabAppScreens.GroupRace.title,
-                                        TimerMasterLabAppScreens.Settings.title,
-                                        TimerMasterLabAppScreens.TimeTrial.title,
-                                        TimerMasterLabAppScreens.SessionResults.title
-                                    )),
-                                navigateUp = { navController.navigateUp() },
-                            )
+                                if (!isLiveRaceScreen && !isStartListScreen && !isHomeScreen) {
+                                TopAppBar(
+                                    currentScreenTitle = currentScreenTitle,
+                                    canNavigateBack = navController.previousBackStackEntry != null && (
+                                        currentScreenTitle in listOf(
+                                            TimerMasterLabAppScreens.Home.title,
+                                            TimerMasterLabAppScreens.GroupRace.title,
+                                            TimerMasterLabAppScreens.Settings.title,
+                                            TimerMasterLabAppScreens.TimeTrial.title,
+                                            TimerMasterLabAppScreens.SessionResults.title
+                                        )),
+                                    navigateUp = { navController.navigateUp() },
+                                )
+                            }
                         },
                     ) { innerPadding ->
                         AppNavHost(

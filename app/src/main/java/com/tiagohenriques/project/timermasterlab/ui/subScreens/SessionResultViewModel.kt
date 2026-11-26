@@ -99,17 +99,27 @@ class SessionResultViewModel(
         val athlete = row.athlete
         val result = row.result
         return when (groupBy) {
-            "Age" -> athlete?.age?.toString() ?: "Unknown"
-            "Gender" -> athlete?.gender ?: "Unknown"
-            "Category" -> athlete?.let { Category.fromCode(it.category).toString() } ?: "Unknown"
-            "Distance" -> result.distance.toString()
+            "Age" -> athlete?.age
+                ?.takeIf { it > 0 }
+                ?.let { "$it years" }
+                ?: "Unknown"
+            "Gender" -> when (athlete?.gender) {
+                "M" -> "Male"
+                "F" -> "Female"
+                else -> "Unknown"
+            }
+            "Category" -> athlete?.let { Category.fromCode(it.category).ifBlank { "Unknown" } } ?: "Unknown"
+            "Distance" -> result.distance.takeIf { it > 0 }?.let { "$it m" } ?: "Unknown"
             else -> ""
         }
     }
 
     private fun sortGroupKeys(keys: Set<String>): List<String> {
         // Prefer numeric sorts when possible (Age/Distance), otherwise alphabetical.
-        return keys.sortedWith(compareBy<String> { it.toIntOrNull() ?: Int.MAX_VALUE }.thenBy { it })
+        return keys.sortedWith(
+            compareBy<String> { it.substringBefore(' ').toIntOrNull() ?: Int.MAX_VALUE }
+                .thenBy { it },
+        )
     }
 
     val uiState: StateFlow<SessionResultsUiState> = combine(
@@ -128,7 +138,11 @@ class SessionResultViewModel(
     ) { (sessions, selectedSession, results), (athletesMap, groupBy), isExporting ->
         val enrichedSorted: List<SessionResultRow> = results
             .map { r -> SessionResultRow(result = r, athlete = athletesMap[r.athleteId]) }
-            .sortedBy { row -> row.result.duration ?: Long.MAX_VALUE }
+            .sortedWith(
+                compareBy<SessionResultRow> {
+                    it.result.duration?.takeIf { duration -> duration > 0L } ?: Long.MAX_VALUE
+                }.thenBy { it.result.startOrder },
+            )
 
         val sections: List<SessionResultsSection> = if (groupBy == "None") {
             listOf(SessionResultsSection(title = "", items = enrichedSorted))
@@ -222,7 +236,7 @@ class SessionResultViewModel(
 
         paint.textSize = 12f
         paint.isFakeBoldText = true
-        canvas.drawText("Pos", posX, yPos, paint)
+        canvas.drawText("Place", posX, yPos, paint)
         canvas.drawText("Name", nameX, yPos, paint)
         canvas.drawText("Time", timeX, yPos, paint)
         paint.isFakeBoldText = false
@@ -231,13 +245,16 @@ class SessionResultViewModel(
         val effectiveGroup = groupBy?.takeIf { it.isNotBlank() && it != "None" }
 
         if (effectiveGroup == null) {
-            results.forEachIndexed { index, (result, athlete) ->
+            var place = 0
+            results.forEach { (result, athlete) ->
                 if (yPos > pageHeight - marginTop) {
                     startNewPage()
                     yPos = marginTop
                 }
 
-                val posText = "${index + 1}."
+                val isFinished = (result.duration ?: 0L) > 0L
+                if (isFinished) place += 1
+                val posText = if (isFinished) "$place." else "--"
                 val nameText = athlete?.name ?: "Athlete #${result.athleteId}"
                 val timeText = Utils.formatDuration(result.duration)
 
@@ -249,20 +266,12 @@ class SessionResultViewModel(
                 yPos += lineHeight
             }
         } else {
-            val grouped = when (effectiveGroup) {
-                "Age" -> results.groupBy { (_, athlete) -> athlete?.age?.toString() ?: "Unknown" }
-                "Gender" -> results.groupBy { (_, athlete) -> athlete?.gender ?: "Unknown" }
-                "Category" -> results.groupBy { (_, athlete) ->
-                    athlete?.let { Category.fromCode(it.category) }?.toString() ?: "Unknown"
-                }
-
-                "Distance" -> results.groupBy { (result, _) -> result.distance.toString() }
-                else -> results.groupBy { "Unknown" }
+            val grouped = results.groupBy { (result, athlete) ->
+                groupKey(effectiveGroup, SessionResultRow(result, athlete))
             }
 
             val sortedGroupKeys = sortGroupKeys(grouped.keys)
 
-            var overallIndex = 0
             for (groupKey in sortedGroupKeys) {
                 val items = grouped[groupKey] ?: continue
 
@@ -278,14 +287,16 @@ class SessionResultViewModel(
                 paint.textSize = 12f
                 yPos += groupGap
 
+                var place = 0
                 items.forEach { (result, athlete) ->
                     if (yPos > pageHeight - marginTop) {
                         startNewPage()
                         yPos = marginTop
                     }
 
-                    overallIndex += 1
-                    val posText = "${overallIndex}."
+                    val isFinished = (result.duration ?: 0L) > 0L
+                    if (isFinished) place += 1
+                    val posText = if (isFinished) "$place." else "--"
                     val nameText = athlete?.name ?: "Athlete #${result.athleteId}"
                     val timeText = Utils.formatDuration(result.duration)
 

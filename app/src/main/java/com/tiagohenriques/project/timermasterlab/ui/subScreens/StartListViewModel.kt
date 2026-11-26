@@ -240,7 +240,7 @@ class StartListViewModel(
         }
     }
 
-    fun commitStartList() = viewModelScope.launch {
+    suspend fun commitStartList() {
         if (currentMode == Type.TIME_TRIAL) {
             Log.d("StartListViewModel", "Clearing time trial start list to save a new one")
             startListEntryRepository.clearTimeTrialStartList()

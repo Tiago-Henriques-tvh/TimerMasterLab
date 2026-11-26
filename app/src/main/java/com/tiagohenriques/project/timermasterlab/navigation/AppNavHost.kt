@@ -1,5 +1,10 @@
 package com.tiagohenriques.project.timermasterlab.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -30,6 +35,14 @@ fun AppNavHost(
         navController = navController,
         startDestination = TimerMasterLabAppScreens.Home.name,
         modifier = modifier,
+        enterTransition = {
+            fadeIn(tween(220)) + slideInHorizontally(tween(240)) { it / 10 }
+        },
+        exitTransition = { fadeOut(tween(160)) },
+        popEnterTransition = { fadeIn(tween(180)) },
+        popExitTransition = {
+            fadeOut(tween(160)) + slideOutHorizontally(tween(200)) { it / 10 }
+        },
     ) {
         // Home
         composable(TimerMasterLabAppScreens.Home.name) {

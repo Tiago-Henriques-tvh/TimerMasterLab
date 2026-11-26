@@ -1,7 +1,6 @@
 package com.tiagohenriques.project.timermasterlab.ui
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -10,9 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,12 +21,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tiagohenriques.project.timermasterlab.R
@@ -65,12 +59,12 @@ fun TopAppBar(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(id = R.string.app_name),
-                        style = metrics.title.copy(color = MaterialTheme.colorScheme.surface),
+                        style = metrics.title.copy(color = MaterialTheme.colorScheme.onPrimary),
                         maxLines = 1,
                     )
                     Text(
                         text = stringResource(id = currentScreenTitle),
-                        style = metrics.body.copy(color = MaterialTheme.colorScheme.surfaceContainer),
+                        style = metrics.body.copy(color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.76f)),
                         maxLines = 1,
                     )
                 }
@@ -80,29 +74,19 @@ fun TopAppBar(
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back_button),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }
         },
         actions = actionIcons,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.secondaryContainer,
-                    ),
-                ),
-            )
-            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+        modifier = modifier.fillMaxWidth(),
         colors =
             TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
             ),
         scrollBehavior = scrollBehavior,
     )

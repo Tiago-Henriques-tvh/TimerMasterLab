@@ -3,7 +3,7 @@ package com.tiagohenriques.project.timermasterlab.ui.components
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -24,9 +24,9 @@ enum class LiveRaceStatus {
 }
 
 fun liveRaceStatusColor(status: LiveRaceStatus): Color = when (status) {
-    LiveRaceStatus.Queued -> Color(0xFF42A5F5)
-    LiveRaceStatus.OnCourse -> Color(0xFFFFA726)
-    LiveRaceStatus.Finished -> Color(0xFF66BB6A)
+    LiveRaceStatus.Queued -> Color(0xFF007B86)
+    LiveRaceStatus.OnCourse -> Color(0xFFA66F00)
+    LiveRaceStatus.Finished -> Color(0xFF173B5E)
 }
 
 fun liveRaceStatusLabel(status: LiveRaceStatus): String = when (status) {
@@ -42,6 +42,7 @@ fun LiveRaceActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    contentColor: Color = Color.White,
 ) {
     val metrics = LocalUiMetrics.current
     val interaction = remember { MutableInteractionSource() }
@@ -52,14 +53,14 @@ fun LiveRaceActionButton(
         interactionSource = interaction,
         modifier = modifier
             .pressScale(interaction)
-            .widthIn(min = metrics.buttonWidth, max = metrics.buttonWidth * 1.4f)
-            .height(metrics.buttonHeight),
+            .widthIn(min = metrics.buttonWidth)
+            .heightIn(min = 48.dp),
         shape = RoundedCornerShape(metrics.cardRadius),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (pressed) containerColor.copy(alpha = 0.82f) else containerColor,
-            contentColor = Color.White,
-            disabledContainerColor = Color(0xFF616161),
+            contentColor = contentColor,
+            disabledContainerColor = Color(0xFF5C6770),
             disabledContentColor = Color.White.copy(alpha = 0.7f),
         ),
     ) {

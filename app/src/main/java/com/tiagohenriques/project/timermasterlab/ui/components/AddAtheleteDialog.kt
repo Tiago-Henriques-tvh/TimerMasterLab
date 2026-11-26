@@ -66,6 +66,8 @@ fun AddAthleteDialog(
     val titleText = if (isEditing) "Edit Athlete" else "Add Athlete"
 
     val categoryEntry = Category.entries.firstOrNull { it.code == category } ?: Category.entries.first()
+    val hasValidDistance = distance.toIntOrNull()?.let { it > 0 } == true
+    val hasValidStartOrder = startOrder.isBlank() || startOrder.toIntOrNull()?.let { it > 0 } == true
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -104,7 +106,7 @@ fun AddAthleteDialog(
                     onValueChange = { newValue ->
                         if (newValue.all { it.isDigit() }) age = newValue
                     },
-                    label = { Text("Age") },
+                    label = { Text("Age (optional)") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -155,8 +157,9 @@ fun AddAthleteDialog(
                     },
                     label = { Text("Distance (m)") },
                     singleLine = true,
+                    supportingText = { Text("Required. Enter a distance greater than 0.") },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Decimal,
+                        keyboardType = KeyboardType.Number,
                         imeAction = if (isEditing || !isTimeTrial) ImeAction.Next else ImeAction.Done,
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
@@ -202,8 +205,17 @@ fun AddAthleteDialog(
                         onValueChange = { input ->
                             if (input.all(Char::isDigit)) startOrder = input
                         },
-                        label = { Text("Start order") },
+                        label = {
+                            Text(
+                                if (isTimeTrial) "Start order" else "Start group (optional)",
+                            )
+                        },
                         singleLine = true,
+                        supportingText = if (!isTimeTrial) {
+                            { Text("Use the same number for athletes starting together.") }
+                        } else {
+                            null
+                        },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done,
@@ -216,7 +228,7 @@ fun AddAthleteDialog(
         },
         confirmButton = {
             TextButton(
-                enabled = name.isNotBlank(),
+                enabled = name.isNotBlank() && hasValidDistance && hasValidStartOrder,
                 onClick = {
                     focusManager.clearFocus()
 
