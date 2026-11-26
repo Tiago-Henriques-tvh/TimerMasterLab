@@ -33,6 +33,14 @@ data class DraftTimeTrialItem(
     val isIgnored: Boolean = false,
 )
 
+private fun List<DraftTimeTrialItem>.isComplete(): Boolean =
+    isNotEmpty() && all { item ->
+        item.isIgnored ||
+            item.result?.let { result ->
+                result.startedAt != null && (result.duration ?: 0L) > 0L
+            } == true
+    }
+
 class BeginTimeTrialViewModel(
     private val sessionResultRepo: SessionResultRepository,
     private val trialSessionRepo: SessionRepository,
@@ -109,13 +117,7 @@ class BeginTimeTrialViewModel(
             val updatedDraft = state.draft.map {
                 if (it.athlete.id == current.athlete.id) it.copy(isIgnored = true) else it
             }
-            val nonIgnored = updatedDraft.filter { !it.isIgnored }
-            val finishedAll = nonIgnored.isNotEmpty() && nonIgnored.all { draft ->
-                val recorded = draft.result
-                val recordedDuration = recorded?.duration
-                recorded != null && recorded.startedAt != null &&
-                    recordedDuration != null && recordedDuration > 0L
-            }
+            val finishedAll = updatedDraft.isComplete()
             if (finishedAll) {
                 globalTimerJob?.cancel()
                 globalTimerJob = null
@@ -139,12 +141,7 @@ class BeginTimeTrialViewModel(
             val updatedDraft = state.draft.map {
                 if (it.athlete.id == current.athlete.id) it.copy(result = stopped) else it
             }
-            val nonIgnored = updatedDraft.filter { !it.isIgnored }
-            val finishedAll = nonIgnored.isNotEmpty() && nonIgnored.all { draft ->
-                val recorded = draft.result
-                recorded != null && recorded.startedAt != null &&
-                    recorded.duration != null && recorded.duration > 0L
-            }
+            val finishedAll = updatedDraft.isComplete()
             if (finishedAll) {
                 globalTimerJob?.cancel()
                 globalTimerJob = null

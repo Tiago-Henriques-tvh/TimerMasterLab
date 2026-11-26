@@ -25,6 +25,7 @@ room = "2.8.2"
 foundationLayout = "1.9.3"
 animationCore = "1.9.4"
 ktor = "2.3.12"
+kotlinxCoroutinesTest = "1.9.0"
 appcompat = "1.7.1"
 biometric = "1.1.0"
 material3 = "1.4.0"
@@ -77,6 +78,7 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }

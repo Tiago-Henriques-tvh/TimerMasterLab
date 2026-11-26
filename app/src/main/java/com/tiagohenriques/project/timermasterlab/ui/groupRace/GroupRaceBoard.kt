@@ -225,7 +225,15 @@ private fun GroupRaceAthleteRow(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            GroupBadge(item.startOrder, liveRaceStatusColor(status))
+            GroupBadge(
+                item.startOrder,
+                liveRaceStatusColor(status),
+                contentColor = if (status == LiveRaceStatus.Queued) {
+                    MaterialTheme.colorScheme.onTertiary
+                } else {
+                    Color.White
+                },
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -300,7 +308,7 @@ private fun StatusSlot(text: String, isFinished: Boolean = false) {
 }
 
 @Composable
-private fun GroupBadge(groupOrder: Int, accent: Color) {
+private fun GroupBadge(groupOrder: Int, accent: Color, contentColor: Color) {
     Box(
         modifier = Modifier
             .size(32.dp)
@@ -310,7 +318,7 @@ private fun GroupBadge(groupOrder: Int, accent: Color) {
         Text(
             text = groupOrder.toString(),
             style = LocalUiMetrics.current.label,
-            color = Color.White,
+            color = contentColor,
             maxLines = 1,
         )
     }

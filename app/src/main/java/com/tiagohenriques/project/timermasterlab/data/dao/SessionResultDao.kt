@@ -13,6 +13,9 @@ interface SessionResultDao {
     @Insert
     suspend fun insertSession(sessionResult: SessionResult): Long
 
+    @Insert
+    suspend fun insertSessions(sessionResults: List<SessionResult>)
+
     @Update
     suspend fun upsertSession(sessionResult: SessionResult)
 

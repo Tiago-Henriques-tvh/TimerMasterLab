@@ -31,6 +31,56 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
+internal fun sortSessionResultRows(
+    rows: List<SessionResultViewModel.SessionResultRow>,
+): List<SessionResultViewModel.SessionResultRow> =
+    rows.sortedWith(
+        compareBy<SessionResultViewModel.SessionResultRow> {
+            it.result.duration?.takeIf { duration -> duration > 0L } ?: Long.MAX_VALUE
+        }.thenBy { it.result.startOrder },
+    )
+
+internal fun sessionResultGroupKey(
+    groupBy: String,
+    row: SessionResultViewModel.SessionResultRow,
+): String {
+    val athlete = row.athlete
+    val result = row.result
+    return when (groupBy) {
+        "Age" -> athlete?.age
+            ?.takeIf { it > 0 }
+            ?.let { "$it years" }
+            ?: "Unknown"
+        "Gender" -> when (athlete?.gender) {
+            "M" -> "Male"
+            "F" -> "Female"
+            else -> "Unknown"
+        }
+        "Category" -> athlete?.let { Category.fromCode(it.category).ifBlank { "Unknown" } } ?: "Unknown"
+        "Distance" -> result.distance.takeIf { it > 0 }?.let { "$it m" } ?: "Unknown"
+        else -> ""
+    }
+}
+
+internal fun sortSessionResultGroupKeys(keys: Set<String>): List<String> =
+    keys.sortedWith(
+        compareBy<String> { it.substringBefore(' ').toIntOrNull() ?: Int.MAX_VALUE }
+            .thenBy { it },
+    )
+
+internal fun buildSessionResultSections(
+    rows: List<SessionResultViewModel.SessionResultRow>,
+    groupBy: String,
+): List<SessionResultViewModel.SessionResultsSection> =
+    if (groupBy == "None") {
+        listOf(SessionResultViewModel.SessionResultsSection(title = "", items = rows))
+    } else {
+        val grouped = rows.groupBy { row -> sessionResultGroupKey(groupBy, row) }
+        sortSessionResultGroupKeys(grouped.keys).map { key ->
+            SessionResultViewModel.SessionResultsSection(title = key, items = grouped[key].orEmpty())
+        }
+    }
+
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class SessionResultViewModel(
     private val sessionResultRepository: SessionResultRepository,
@@ -95,33 +145,6 @@ class SessionResultViewModel(
         emit(athletes.associateBy { it.id })
     }.flowOn(Dispatchers.IO)
 
-    private fun groupKey(groupBy: String, row: SessionResultRow): String {
-        val athlete = row.athlete
-        val result = row.result
-        return when (groupBy) {
-            "Age" -> athlete?.age
-                ?.takeIf { it > 0 }
-                ?.let { "$it years" }
-                ?: "Unknown"
-            "Gender" -> when (athlete?.gender) {
-                "M" -> "Male"
-                "F" -> "Female"
-                else -> "Unknown"
-            }
-            "Category" -> athlete?.let { Category.fromCode(it.category).ifBlank { "Unknown" } } ?: "Unknown"
-            "Distance" -> result.distance.takeIf { it > 0 }?.let { "$it m" } ?: "Unknown"
-            else -> ""
-        }
-    }
-
-    private fun sortGroupKeys(keys: Set<String>): List<String> {
-        // Prefer numeric sorts when possible (Age/Distance), otherwise alphabetical.
-        return keys.sortedWith(
-            compareBy<String> { it.substringBefore(' ').toIntOrNull() ?: Int.MAX_VALUE }
-                .thenBy { it },
-        )
-    }
-
     val uiState: StateFlow<SessionResultsUiState> = combine(
         combine(
             combine(sessionsFlow, selectedSessionFlow) { sessions, selectedSession ->
@@ -136,22 +159,15 @@ class SessionResultViewModel(
         },
         _isExporting,
     ) { (sessions, selectedSession, results), (athletesMap, groupBy), isExporting ->
-        val enrichedSorted: List<SessionResultRow> = results
-            .map { r -> SessionResultRow(result = r, athlete = athletesMap[r.athleteId]) }
-            .sortedWith(
-                compareBy<SessionResultRow> {
-                    it.result.duration?.takeIf { duration -> duration > 0L } ?: Long.MAX_VALUE
-                }.thenBy { it.result.startOrder },
-            )
-
-        val sections: List<SessionResultsSection> = if (groupBy == "None") {
-            listOf(SessionResultsSection(title = "", items = enrichedSorted))
-        } else {
-            val grouped = enrichedSorted.groupBy { row -> groupKey(groupBy, row) }
-            sortGroupKeys(grouped.keys).map { key ->
-                SessionResultsSection(title = key, items = grouped[key].orEmpty())
-            }
-        }
+        val enrichedSorted = sortSessionResultRows(
+            results.map { result ->
+                SessionResultRow(result = result, athlete = athletesMap[result.athleteId])
+            },
+        )
+        val sections = buildSessionResultSections(
+            rows = enrichedSorted,
+            groupBy = groupBy,
+        )
 
         SessionResultsUiState(
             sessions = sessions,
@@ -267,10 +283,10 @@ class SessionResultViewModel(
             }
         } else {
             val grouped = results.groupBy { (result, athlete) ->
-                groupKey(effectiveGroup, SessionResultRow(result, athlete))
+                sessionResultGroupKey(effectiveGroup, SessionResultRow(result, athlete))
             }
 
-            val sortedGroupKeys = sortGroupKeys(grouped.keys)
+            val sortedGroupKeys = sortSessionResultGroupKeys(grouped.keys)
 
             for (groupKey in sortedGroupKeys) {
                 val items = grouped[groupKey] ?: continue

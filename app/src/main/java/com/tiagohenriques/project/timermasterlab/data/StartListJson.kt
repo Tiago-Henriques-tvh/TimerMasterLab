@@ -48,16 +48,23 @@ object StartListJson {
             throw IllegalArgumentException("Start list file is not valid JSON", error)
         } ?: throw IllegalArgumentException("Start list file is empty")
 
-        if (parsed.version < 1) {
+        if (parsed.version !in 1..CURRENT_VERSION) {
             throw IllegalArgumentException("Unsupported start list version")
         }
-        val entries = parsed.entries.map { entry ->
-            if (entry.name.isBlank()) {
+        val rawEntries: List<StartListFileEntry>? = parsed.entries
+        if (rawEntries == null) {
+            throw IllegalArgumentException("Start list entries are missing")
+        }
+        val entries = rawEntries.map { rawEntry ->
+            val entry = rawEntry ?: throw IllegalArgumentException("Start list entry is empty")
+            val name: String? = entry.name
+            if (name.isNullOrBlank()) {
                 throw IllegalArgumentException("Start list entry is missing a name")
             }
+            val gender: String? = entry.gender
             entry.copy(
-                name = entry.name.trim(),
-                gender = entry.gender.trim(),
+                name = name.trim(),
+                gender = gender?.trim().orEmpty(),
                 startOrder = entry.startOrder.coerceAtLeast(1),
                 distanceMeters = entry.distanceMeters.coerceAtLeast(0f),
                 age = entry.age.coerceAtLeast(0),

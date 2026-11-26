@@ -24,7 +24,7 @@ enum class LiveRaceStatus {
 }
 
 fun liveRaceStatusColor(status: LiveRaceStatus): Color = when (status) {
-    LiveRaceStatus.Queued -> Color(0xFF007B86)
+    LiveRaceStatus.Queued -> Color(0xFF5DC1B9)
     LiveRaceStatus.OnCourse -> Color(0xFFA66F00)
     LiveRaceStatus.Finished -> Color(0xFF173B5E)
 }

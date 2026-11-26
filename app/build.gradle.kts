@@ -25,12 +25,6 @@ class HelloWorldPlugin : Plugin<Project> {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        force("androidx.test.espresso:espresso-core:3.5.0")
-    }
-}
-
 android {
     namespace = "com.tiagohenriques.project.timermasterlab"
     compileSdk = 36
@@ -43,6 +37,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
     }
 
     buildTypes {
@@ -115,6 +113,7 @@ dependencies {
     implementation(libs.androidx.foundation.layout)
     implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

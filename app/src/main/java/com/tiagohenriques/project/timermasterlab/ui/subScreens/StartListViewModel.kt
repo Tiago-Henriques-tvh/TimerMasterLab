@@ -22,6 +22,7 @@ import com.tiagohenriques.project.timermasterlab.data.models.Type
 import com.tiagohenriques.project.timermasterlab.data.repositories.AthletesRepository
 import com.tiagohenriques.project.timermasterlab.data.repositories.StartListEntryRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,6 +51,30 @@ data class DraftStartListItem(
     val startOrder: Int,
     val distanceMeters: Float,
 )
+
+internal fun reorderStartListDraft(
+    draft: List<DraftStartListItem>,
+    fromIndex: Int,
+    toIndex: Int,
+    mode: Type,
+): List<DraftStartListItem>? {
+    val size = draft.size
+    if (fromIndex !in 0 until size || toIndex !in 0..size) return null
+
+    val targetIndex = toIndex.coerceAtMost(size - 1)
+    if (fromIndex == targetIndex) return null
+
+    val reordered = draft.toMutableList().apply {
+        val item = removeAt(fromIndex)
+        add(targetIndex, item)
+    }
+
+    return if (mode == Type.TIME_TRIAL) {
+        reordered.mapIndexed { index, item -> item.copy(startOrder = index + 1) }
+    } else {
+        reordered
+    }
+}
 
 sealed class StartListEvent {
     data class ShareFile(val file: File) : StartListEvent()
@@ -106,8 +130,17 @@ class StartListViewModel(
                     hasUnsavedChanges = true,
                     isLoading = false,
                 )
-            } catch (_: Throwable) {
+            } catch (error: CancellationException) {
                 _uiState.update { it.copy(isLoading = false) }
+                throw error
+            } catch (error: Exception) {
+                _uiState.update { it.copy(isLoading = false) }
+                _events.emit(
+                    StartListEvent.Message(
+                        "Could not import start list: ${error.message ?: "Please try again."}",
+                    ),
+                )
+                AppLogger.e(TAG, "Import from $fromMode failed", error)
             }
         }
     }
@@ -116,11 +149,16 @@ class StartListViewModel(
         Log.d("StartListViewModel", "Loading start list for mode: $mode")
         _uiState.update { it.copy(isLoading = true) }
 
-        currentMode = Type.fromStringToType(mode.replace("_", " "))!!
+        val parsedMode = Type.fromStringToType(mode.replace("_", " "))
+        if (parsedMode == null) {
+            _uiState.update { it.copy(isLoading = false) }
+            _events.tryEmit(StartListEvent.Message("Unsupported start-list mode"))
+            return
+        }
+        currentMode = parsedMode
         viewModelScope.launch {
-            val flow = startListFlowFor(currentMode)
-
-            flow.take(1).collect { entries ->
+            try {
+                val entries = startListFlowFor(currentMode).first()
                 Log.d("StartListViewModel", "Loaded ${entries.size} entries: $entries")
 
                 val athletesMap = athletesRepository.getAllAthletesOnce().associateBy { it.id }
@@ -135,9 +173,18 @@ class StartListViewModel(
                 }
 
                 _uiState.value = StartListUiState(draft = draftItems)
+            } catch (error: CancellationException) {
+                _uiState.update { it.copy(isLoading = false) }
+                throw error
+            } catch (error: Exception) {
+                _uiState.update { it.copy(isLoading = false) }
+                _events.emit(
+                    StartListEvent.Message(
+                        "Could not load start list: ${error.message ?: "Please try again."}",
+                    ),
+                )
+                AppLogger.e(TAG, "Loading $currentMode start list failed", error)
             }
-
-            _uiState.update { it.copy(isLoading = false) }
         }
     }
 
@@ -241,45 +288,28 @@ class StartListViewModel(
     }
 
     suspend fun commitStartList() {
-        if (currentMode == Type.TIME_TRIAL) {
-            Log.d("StartListViewModel", "Clearing time trial start list to save a new one")
-            startListEntryRepository.clearTimeTrialStartList()
-        } else if (currentMode == Type.GROUP_RACE) {
-            Log.d("StartListViewModel", "Clearing group race start list to save a new one")
-            startListEntryRepository.clearGroupRaceStartList()
-        }
-
-        uiState.value.draft.forEach { item ->
-            startListEntryRepository.insert(
+        val entries = uiState.value.draft.map { item ->
                 StartListEntry(
                     athleteId = item.athlete.id,
                     startOrder = item.startOrder,
                     distanceMeters = item.distanceMeters,
-                    type = Type.fromTypeToString(currentMode) ?: ""
+                    type = currentMode.displayName,
                 )
-            )
+        }
+        when (currentMode) {
+            Type.TIME_TRIAL -> startListEntryRepository.replaceTimeTrialStartList(entries)
+            Type.GROUP_RACE -> startListEntryRepository.replaceGroupRaceStartList(entries)
         }
 
         _uiState.update { it.copy(hasUnsavedChanges = false) }
     }
 
     fun moveDraftItem(fromIndex: Int, toIndex: Int) {
-        val oldDraft = uiState.value.draft
-        val size = oldDraft.size
-        if (fromIndex !in 0 until size || toIndex !in 0..size || fromIndex == toIndex) return
-
-        val newDraft = oldDraft.toMutableList().apply {
-            val item = removeAt(fromIndex)
-            add(toIndex, item)
+        _uiState.update { state ->
+            val reordered = reorderStartListDraft(state.draft, fromIndex, toIndex, currentMode)
+                ?: return@update state
+            state.copy(draft = reordered, hasUnsavedChanges = true)
         }
-
-        val resulting = if (currentMode == Type.GROUP_RACE) {
-            newDraft
-        } else {
-            newDraft.mapIndexed { index, draftItem -> draftItem.copy(startOrder = index + 1) }
-        }
-
-        _uiState.update { it.copy(draft = resulting, hasUnsavedChanges = true) }
     }
 
     fun shareStartListJson(context: Context) {

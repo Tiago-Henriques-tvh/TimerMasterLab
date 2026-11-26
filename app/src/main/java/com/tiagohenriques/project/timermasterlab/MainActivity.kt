@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: UserPreferencesViewModel = viewModel(factory = AppViewModelProvider.Factory)
-            val isDarkTheme = viewModel.isDarkThemeFlow.collectAsState(initial = viewModel.getInitialTheme()).value
+            val isDarkTheme = viewModel.isDarkThemeFlow.collectAsState(initial = true).value
             val fileLoggingEnabled by viewModel.isFileLoggingEnabledFlow.collectAsState(
                 initial = AppLogger.isEnabled,
             )

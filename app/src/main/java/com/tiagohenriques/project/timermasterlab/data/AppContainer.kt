@@ -35,7 +35,8 @@ class AppDataContainer(
         OfflineSessionRepository(
             db.trialSessionDao(),
             sessionResultDao = db.sessionResultDao(),
-            startListEntryDao = db.startListEntryDao()
+            startListEntryDao = db.startListEntryDao(),
+            database = db,
         )
     }
 

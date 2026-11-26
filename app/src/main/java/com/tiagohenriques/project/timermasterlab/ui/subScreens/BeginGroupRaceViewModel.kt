@@ -126,9 +126,13 @@ class BeginGroupRaceViewModel(
     }
 
     fun stopAthlete(item: DraftGroupRaceItem) {
+        val current = _uiState.value.draft.firstOrNull { it.athlete.id == item.athlete.id } ?: return
+        val result = current.result ?: return
+        val startedAt = result.startedAt ?: return
+        if (result.duration != null && result.duration > 0L) return
+
         val now = System.currentTimeMillis()
-        val result = item.result ?: return
-        val duration = now - (result.startedAt ?: now)
+        val duration = (now - startedAt).coerceAtLeast(1L)
 
         viewModelScope.launch {
             sessionResultRepo.update(result.copy(duration = duration))

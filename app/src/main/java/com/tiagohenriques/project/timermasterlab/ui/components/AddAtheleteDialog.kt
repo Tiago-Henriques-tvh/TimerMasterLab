@@ -66,7 +66,7 @@ fun AddAthleteDialog(
     val titleText = if (isEditing) "Edit Athlete" else "Add Athlete"
 
     val categoryEntry = Category.entries.firstOrNull { it.code == category } ?: Category.entries.first()
-    val hasValidDistance = distance.toIntOrNull()?.let { it > 0 } == true
+    val hasValidDistance = distance.isBlank() || distance.toIntOrNull()?.let { it >= 0 } == true
     val hasValidStartOrder = startOrder.isBlank() || startOrder.toIntOrNull()?.let { it > 0 } == true
 
     AlertDialog(
@@ -157,7 +157,7 @@ fun AddAthleteDialog(
                     },
                     label = { Text("Distance (m)") },
                     singleLine = true,
-                    supportingText = { Text("Required. Enter a distance greater than 0.") },
+                    supportingText = { Text("Optional. Defaults to 0 m.") },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = if (isEditing || !isTimeTrial) ImeAction.Next else ImeAction.Done,
