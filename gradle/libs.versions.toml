@@ -23,7 +23,6 @@ retrofit = "3.0.0"
 uiTextGoogleFonts = "1.9.3"
 room = "2.8.2"
 foundationLayout = "1.9.3"
-firebaseCrashlyticsBuildtools = "3.0.6"
 animationCore = "1.9.4"
 ktor = "2.3.12"
 appcompat = "1.7.1"
@@ -71,7 +70,6 @@ androidx-room-paging = { group = "androidx.room", name = "room-paging", version.
 androidx-room-rxjava3 = { group = "androidx.room", name = "room-rxjava3", version.ref = "room" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version = "2.7.0" }
-firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }

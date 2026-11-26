@@ -37,7 +37,7 @@ android {
 
     defaultConfig {
         applicationId = "com.tiagohenriques.project.timermasterlab"
-        minSdk = 33
+        minSdk = 30
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -107,7 +107,6 @@ dependencies {
     implementation(libs.androidx.compose.material3.window.size.class1)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.compose.foundation.layout)
-    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.compose.animation.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.material3)
